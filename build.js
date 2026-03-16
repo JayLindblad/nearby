@@ -4,8 +4,14 @@ const fs = require('fs');
 const path = require('path');
 
 // Read environment variables (or use defaults for local dev)
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjlqtrrpbkottvmmzbld.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqbHF0cnJwYmtvdHR2bW16YmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MjYzMjksImV4cCI6MjA4OTIwMjMyOX0.xRoWhHs4RvBe4ToyRmH6YOrdsARgpbX9Di44IBBPPmw';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ Missing environment variables!');
+  console.error('Set SUPABASE_URL and SUPABASE_KEY before running build.js');
+  process.exit(1);
+}
 
 // Read source file
 const sourceFile = path.join(__dirname, 'index.html');
