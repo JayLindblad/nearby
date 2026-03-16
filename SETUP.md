@@ -1,5 +1,47 @@
 # Personal Events Hub — Setup Guide
 
+## GitHub Pages Deployment (Recommended)
+
+This app is configured to deploy automatically to GitHub Pages using GitHub Actions.
+
+### Step 1: Set GitHub Secrets
+
+1. Go to your repository on GitHub
+2. Click **Settings** → **Secrets and variables** → **Actions**
+3. Click **New repository secret** and add these two:
+
+   **Secret 1:**
+   - Name: `SUPABASE_URL`
+   - Value: `https://vjlqtrrpbkottvmmzbld.supabase.co`
+
+   **Secret 2:**
+   - Name: `SUPABASE_KEY`
+   - Value: Your anon key (the long JWT token)
+
+### Step 2: Enable GitHub Pages
+
+1. In your repository, go to **Settings** → **Pages**
+2. Under "Build and deployment":
+   - Source: **GitHub Actions**
+3. Save (it's already configured via `.github/workflows/deploy.yml`)
+
+### Step 3: Deploy
+
+Push to the `claude/personal-events-hub-R3AoU` branch:
+
+```bash
+git push
+```
+
+The GitHub Actions workflow will automatically:
+1. Build the app with your Supabase credentials injected
+2. Deploy to GitHub Pages
+3. Your site will be live at `https://<username>.github.io/nearby/` (or with custom domain)
+
+Your credentials **never appear in the source code** — they're injected at build time from GitHub Secrets.
+
+---
+
 ## Supabase Table Setup
 
 Before the app can work, you need to create an `events` table in your Supabase project.
@@ -89,16 +131,30 @@ FOR DELETE USING (true);
 - **Links** — Event names with links show a ↗ icon and open in a new tab
 - **Past events** — Appear at reduced opacity
 
-## Deployment
+## Local Development
 
-To deploy this app:
+To test locally with environment variables:
 
-1. **Netlify/Vercel** — Drop the `index.html` file into your site (it's a standalone file)
-2. **Your own server** — Simply serve the `index.html` file
-3. **Cloudflare Pages** — Upload the file directly
-4. **GitHub Pages** — Push to a repo and enable Pages
+```bash
+# Build with your credentials (reads from .env or hardcoded defaults)
+node build.js
 
-No build step needed — it's just a single HTML file!
+# Then open dist/index.html in your browser
+```
+
+Or create a `.env` file (gitignored):
+```
+SUPABASE_URL=https://vjlqtrrpbkottvmmzbld.supabase.co
+SUPABASE_KEY=your_key_here
+```
+
+Then run `node build.js` again.
+
+## Other Deployment Options
+
+- **Netlify** — Point to the `dist/` folder (or use the GitHub Pages method)
+- **Vercel** — Same as Netlify
+- **Any static host** — The `dist/index.html` file is pure HTML/CSS/JS with no dependencies
 
 ## Troubleshooting
 

@@ -685,9 +685,9 @@
     const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    // Supabase Setup
-    const SUPABASE_URL = 'https://vjlqtrrpbkottvmmzbld.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqbHF0cnJwYmtvdHR2bW16YmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MjYzMjksImV4cCI6MjA4OTIwMjMyOX0.xRoWhHs4RvBe4ToyRmH6YOrdsARgpbX9Di44IBBPPmw';
+    // Supabase Setup - credentials injected at build time
+    const SUPABASE_URL = '{{SUPABASE_URL}}';
+    const SUPABASE_KEY = '{{SUPABASE_KEY}}';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // App State
