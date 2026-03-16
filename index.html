@@ -596,6 +596,163 @@
       margin-bottom: 1rem;
     }
 
+    /* Debug Panel */
+    #debug-badge {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-family: "Space Mono", monospace;
+      font-size: 0.72rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      letter-spacing: 0.05em;
+      transition: background 0.2s;
+    }
+
+    #debug-badge.active { background: #6c5ce7; }
+
+    #debug-panel {
+      display: none;
+      position: fixed;
+      bottom: 3.5rem;
+      right: 1rem;
+      z-index: 9998;
+      width: 400px;
+      max-height: 520px;
+      background: #111;
+      border-radius: 10px;
+      border: 1px solid #2a2a2a;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      flex-direction: column;
+      font-family: "Space Mono", monospace;
+      font-size: 0.72rem;
+      overflow: hidden;
+      color: #ddd;
+    }
+
+    #debug-panel.open { display: flex; }
+
+    .dbg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid #2a2a2a;
+      flex-shrink: 0;
+      background: #1a1a1a;
+    }
+
+    .dbg-header-title {
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.7rem;
+    }
+
+    .dbg-header-status {
+      font-size: 0.65rem;
+      color: #888;
+    }
+
+    .dbg-close {
+      background: transparent;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .dbg-close:hover { color: #fff; }
+
+    .dbg-tabs {
+      display: flex;
+      border-bottom: 1px solid #2a2a2a;
+      flex-shrink: 0;
+      background: #1a1a1a;
+    }
+
+    .dbg-tab {
+      flex: 1;
+      padding: 0.45rem 0;
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+      transition: all 0.15s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .dbg-tab.active {
+      color: #a29bfe;
+      border-bottom-color: #6c5ce7;
+    }
+
+    .dbg-tab:hover:not(.active) { color: #aaa; }
+
+    #debug-content {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0.5rem 0.65rem;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+    }
+
+    .dbg-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #1e1e1e;
+      gap: 0.5rem;
+    }
+
+    .dbg-key { color: #888; flex-shrink: 0; }
+    .dbg-val { color: #e2d9f3; text-align: right; word-break: break-all; }
+    .dbg-ok  { color: #55efc4; }
+    .dbg-err { color: #ff7675; }
+    .dbg-warn { color: #fdcb6e; }
+    .dbg-accent { color: #a29bfe; }
+
+    .dbg-event {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    .dbg-event-name { color: #e2d9f3; font-weight: 700; }
+    .dbg-event-meta { color: #888; font-size: 0.65rem; margin-top: 0.15rem; }
+    .dbg-event-id   { color: #444; font-size: 0.62rem; margin-top: 0.1rem; }
+
+    .dbg-log {
+      display: grid;
+      grid-template-columns: 5.5rem 3rem 1fr;
+      gap: 0.4rem;
+      padding: 0.28rem 0;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 0.67rem;
+      align-items: baseline;
+    }
+
+    .dbg-log-time  { color: #555; }
+    .dbg-log-level { font-weight: 700; }
+    .dbg-log-msg   { color: #bbb; word-break: break-word; }
+
+    .dbg-log-log   .dbg-log-level { color: #74b9ff; }
+    .dbg-log-warn  .dbg-log-level { color: #fdcb6e; }
+    .dbg-log-error .dbg-log-level { color: #ff7675; }
+
+    .dbg-empty { color: #444; padding: 0.5rem 0; }
+
     /* Responsive */
     @media (max-width: 768px) {
       .header {
@@ -632,6 +789,23 @@
 </head>
 <body>
   <div id="app"></div>
+
+  <!-- Debug Panel -->
+  <button id="debug-badge" onclick="window.__debug && window.__debug.toggle()">🔍 DEBUG</button>
+  <div id="debug-panel">
+    <div class="dbg-header">
+      <span class="dbg-header-title">DEBUG PANEL</span>
+      <span class="dbg-header-status" id="dbg-render-count">renders: 0</span>
+      <button class="dbg-close" onclick="window.__debug && window.__debug.toggle()">×</button>
+    </div>
+    <div class="dbg-tabs">
+      <button class="dbg-tab active" id="dbg-tab-state"  onclick="window.__debug && window.__debug.setTab('state')">State</button>
+      <button class="dbg-tab"        id="dbg-tab-config" onclick="window.__debug && window.__debug.setTab('config')">Config</button>
+      <button class="dbg-tab"        id="dbg-tab-events" onclick="window.__debug && window.__debug.setTab('events')">Events</button>
+      <button class="dbg-tab"        id="dbg-tab-logs"   onclick="window.__debug && window.__debug.setTab('logs')">Logs</button>
+    </div>
+    <div id="debug-content"></div>
+  </div>
 
   <script>
     // Theme Configuration
@@ -1202,6 +1376,7 @@
             </div>
           </div>
         `;
+        _afterRender();
         return;
       }
       appEl.innerHTML = `
@@ -1218,6 +1393,7 @@
           </div>
         </div>
       `;
+      _afterRender();
     }
 
     // Form Handlers
@@ -1298,6 +1474,159 @@
     window.addEventListener('DOMContentLoaded', () => {
       initSupabase();
     });
+
+    // Called at the end of render() to sync the debug panel
+    function _afterRender() {
+      if (window.__debugUpdate) window.__debugUpdate();
+    }
+  </script>
+  <script>
+    (function () {
+      const MAX_LOGS = 150;
+      const debugLogs = [];
+      let renderCount = 0;
+      let activeTab = 'state';
+      let isOpen = false;
+
+      // ── Console interception ──────────────────────────────────────
+      const _orig = {
+        log:   console.log.bind(console),
+        warn:  console.warn.bind(console),
+        error: console.error.bind(console),
+      };
+
+      function capture(level, args) {
+        const msg = args.map(a => {
+          if (a === null) return 'null';
+          if (a === undefined) return 'undefined';
+          if (typeof a === 'object') { try { return JSON.stringify(a); } catch (e) { return String(a); } }
+          return String(a);
+        }).join(' ');
+        const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+        debugLogs.unshift({ level, msg, ts });
+        if (debugLogs.length > MAX_LOGS) debugLogs.pop();
+        if (isOpen && activeTab === 'logs') renderContent();
+      }
+
+      console.log   = function (...a) { _orig.log(...a);   capture('log',   a); };
+      console.warn  = function (...a) { _orig.warn(...a);  capture('warn',  a); };
+      console.error = function (...a) { _orig.error(...a); capture('error', a); };
+
+      // ── Helpers ───────────────────────────────────────────────────
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function boolBadge(val, trueOk) {
+        const cls = val ? (trueOk ? 'dbg-ok' : 'dbg-err') : (trueOk ? 'dbg-err' : 'dbg-ok');
+        return `<span class="${cls}">${val}</span>`;
+      }
+
+      // ── Tab renderers ─────────────────────────────────────────────
+      function tabState() {
+        const a = window.app || {};
+        const rows = [
+          ['view',          `<span class="dbg-accent">${esc(a.view || '—')}</span>`],
+          ['inputMode',     `<span class="dbg-accent">${esc(a.inputMode || '—')}</span>`],
+          ['loading',       boolBadge(a.loading, false)],
+          ['events.length', `<span class="dbg-accent">${(a.events || []).length}</span>`],
+          ['searchTerm',    `<span class="dbg-val">${esc(a.searchTerm || '(empty)')}</span>`],
+          ['filterCategory',`<span class="dbg-val">${esc(a.filterCategory || '(all)')}</span>`],
+          ['currentMonth',  `<span class="dbg-val">${a.currentMonth ? a.currentMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'}) : '—'}</span>`],
+          ['map init',      boolBadge(!!a.map, true)],
+          ['markers',       `<span class="dbg-accent">${(a.markers || []).length}</span>`],
+          ['configError',   a.configError ? `<span class="dbg-err">${esc(a.configError.slice(0,60))}…</span>` : `<span class="dbg-ok">none</span>`],
+        ];
+        return rows.map(([k, v]) => `<div class="dbg-row"><span class="dbg-key">${k}</span>${v}</div>`).join('');
+      }
+
+      function tabConfig() {
+        const configured = window.SUPABASE_CONFIGURED;
+        const url = (typeof window.SUPABASE_URL !== 'undefined' && !window.SUPABASE_URL.startsWith('{{'))
+          ? esc(window.SUPABASE_URL.slice(0, 40)) + (window.SUPABASE_URL.length > 40 ? '…' : '')
+          : '<span class="dbg-warn">not set / placeholder</span>';
+        const keySet = (typeof window.SUPABASE_KEY !== 'undefined' && !window.SUPABASE_KEY.startsWith('{{'));
+        const rows = [
+          ['SUPABASE_CONFIGURED', boolBadge(configured, true)],
+          ['SUPABASE_URL',        `<span class="dbg-val">${url}</span>`],
+          ['SUPABASE_KEY set',    boolBadge(keySet, true)],
+          ['supabaseClient',      boolBadge(!!window.supabaseClient, true)],
+          ['supabase lib loaded', boolBadge(!!(window.supabase), true)],
+          ['Leaflet loaded',      boolBadge(!!(window.L), true)],
+        ];
+        return rows.map(([k, v]) => `<div class="dbg-row"><span class="dbg-key">${k}</span>${v}</div>`).join('');
+      }
+
+      function tabEvents() {
+        const events = (window.app && window.app.events) || [];
+        if (!events.length) return '<div class="dbg-empty">No events loaded yet.</div>';
+        return events.map(e => `
+          <div class="dbg-event">
+            <div class="dbg-event-name">${esc(e.name)}</div>
+            <div class="dbg-event-meta">${esc(e.category)} · ${e.datetime ? new Date(e.datetime).toLocaleDateString() : 'no date'} · ${esc(e.location || 'no location')}</div>
+            <div class="dbg-event-id">id: ${esc(e.id)}</div>
+          </div>`).join('');
+      }
+
+      function tabLogs() {
+        if (!debugLogs.length) return '<div class="dbg-empty">No logs captured yet.</div>';
+        return debugLogs.map(l => `
+          <div class="dbg-log dbg-log-${l.level}">
+            <span class="dbg-log-time">${l.ts}</span>
+            <span class="dbg-log-level">${l.level.toUpperCase()}</span>
+            <span class="dbg-log-msg">${esc(l.msg)}</span>
+          </div>`).join('');
+      }
+
+      // ── Render debug content ──────────────────────────────────────
+      function renderContent() {
+        const el = document.getElementById('debug-content');
+        if (!el) return;
+        const map = { state: tabState, config: tabConfig, events: tabEvents, logs: tabLogs };
+        el.innerHTML = (map[activeTab] || tabState)();
+      }
+
+      // ── Tab switching ─────────────────────────────────────────────
+      function setTab(tab) {
+        activeTab = tab;
+        ['state', 'config', 'events', 'logs'].forEach(t => {
+          const btn = document.getElementById('dbg-tab-' + t);
+          if (btn) btn.classList.toggle('active', t === tab);
+        });
+        renderContent();
+      }
+
+      // ── Toggle open/close ─────────────────────────────────────────
+      function toggle() {
+        isOpen = !isOpen;
+        const panel = document.getElementById('debug-panel');
+        const badge = document.getElementById('debug-badge');
+        if (panel) panel.classList.toggle('open', isOpen);
+        if (badge) badge.classList.toggle('active', isOpen);
+        if (isOpen) renderContent();
+      }
+
+      // ── Called by _afterRender() in main script ───────────────────
+      function update() {
+        renderCount++;
+        const rc = document.getElementById('dbg-render-count');
+        if (rc) rc.textContent = 'renders: ' + renderCount;
+        if (isOpen) renderContent();
+      }
+
+      // ── Keyboard shortcut: Shift+D ────────────────────────────────
+      document.addEventListener('keydown', function (e) {
+        if (e.shiftKey && e.key === 'D') toggle();
+      });
+
+      // ── Expose API ────────────────────────────────────────────────
+      window.__debug = { toggle, setTab, update };
+      window.__debugUpdate = update;
+    })();
   </script>
 </body>
 </html>
