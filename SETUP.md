@@ -15,7 +15,7 @@ This app is configured to deploy automatically to GitHub Pages using GitHub Acti
    - Value: `https://vjlqtrrpbkottvmmzbld.supabase.co`
 
    **Secret 2:**
-   - Name: `SUPABASE_KEY`
+   - Name: `SUPABASE_ANON_KEY`
    - Value: Your anon key (the long JWT token)
 
 ### Step 2: Enable GitHub Pages
@@ -145,7 +145,7 @@ node build.js
 Or create a `.env` file (gitignored):
 ```
 SUPABASE_URL=https://vjlqtrrpbkottvmmzbld.supabase.co
-SUPABASE_KEY=your_key_here
+SUPABASE_ANON_KEY=your_key_here
 ```
 
 Then run `node build.js` again.
