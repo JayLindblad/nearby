@@ -785,10 +785,46 @@
         font-size: 0.85rem;
       }
     }
+
+    /* Toast notifications */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: auto;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast-success { background: #2ecc71; }
+    .toast-error   { background: #e74c3c; }
   </style>
 </head>
 <body>
   <div id="app"></div>
+  <div id="toast-container"></div>
 
   <!-- Debug Panel -->
   <button id="debug-badge" onclick="window.__debug && window.__debug.toggle()">🔍 DEBUG</button>
@@ -1020,6 +1056,22 @@
       }
     }
 
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      // Trigger animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('show'));
+      });
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+      }, 3000);
+    }
+
     async function saveEvent(event) {
       try {
         const { data, error } = await supabaseClient
@@ -1030,8 +1082,10 @@
         if (error) throw error;
         app.events.push(data[0]);
         render();
+        showToast('Event added!');
       } catch (err) {
         console.error('Save event error:', err);
+        showToast('Failed to save event. Please try again.', 'error');
       }
     }
 
@@ -1472,7 +1526,10 @@
         created: new Date().toISOString()
       };
 
+      const btn = document.querySelector('button[onclick="submitForm()"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
       await saveEvent(event);
+      if (btn) { btn.disabled = false; btn.textContent = 'Add Event'; }
       clearForm();
     }
 
