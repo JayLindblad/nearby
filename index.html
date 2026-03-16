@@ -689,7 +689,7 @@
     const SUPABASE_URL = '{{SUPABASE_URL}}';
     const SUPABASE_KEY = '{{SUPABASE_KEY}}';
     const SUPABASE_CONFIGURED = !SUPABASE_URL.startsWith('{{') && !SUPABASE_KEY.startsWith('{{');
-    const supabase = SUPABASE_CONFIGURED
+    const supabaseClient = SUPABASE_CONFIGURED
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
       : null;
 
@@ -823,7 +823,7 @@
     async function loadEvents() {
       console.log('[loadEvents] fetching events from Supabase...');
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('events')
           .select('*')
           .order('datetime', { ascending: true, nullsFirst: true });
@@ -842,7 +842,7 @@
 
     async function saveEvent(event) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('events')
           .insert([event])
           .select();
@@ -857,7 +857,7 @@
 
     async function deleteEvent(id) {
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from('events')
           .delete()
           .eq('id', id);
