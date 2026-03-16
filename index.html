@@ -867,6 +867,12 @@
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
       : null;
 
+    // Expose to window so the debug panel (separate script scope) can read them
+    window.SUPABASE_URL = SUPABASE_URL;
+    window.SUPABASE_KEY = SUPABASE_KEY;
+    window.SUPABASE_CONFIGURED = SUPABASE_CONFIGURED;
+    window.supabaseClient = supabaseClient;
+
     // App State
     let app = {
       view: 'list', // 'list', 'calendar', 'map'
