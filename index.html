@@ -688,7 +688,10 @@
     // Supabase Setup - credentials injected at build time
     const SUPABASE_URL = '{{SUPABASE_URL}}';
     const SUPABASE_KEY = '{{SUPABASE_KEY}}';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_CONFIGURED = !SUPABASE_URL.startsWith('{{') && !SUPABASE_KEY.startsWith('{{');
+    const supabase = SUPABASE_CONFIGURED
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      : null;
 
     // App State
     let app = {
@@ -701,7 +704,8 @@
       map: null,
       markers: [],
       loading: true,
-      userId: null
+      userId: null,
+      configError: null
     };
 
     // Utility Functions
@@ -793,6 +797,12 @@
 
     // Supabase Operations
     async function initSupabase() {
+      if (!SUPABASE_CONFIGURED) {
+        app.loading = false;
+        app.configError = 'Supabase credentials have not been configured. Run the build script with SUPABASE_URL and SUPABASE_KEY environment variables set.';
+        render();
+        return;
+      }
       try {
         // Initialize table if needed (in production, do this via Supabase UI)
         app.loading = true;
@@ -801,6 +811,7 @@
       } catch (err) {
         console.error('Supabase init error:', err);
         app.loading = false;
+        render();
       }
     }
 
@@ -1173,6 +1184,18 @@
 
     function render() {
       const appEl = document.getElementById('app');
+      if (app.configError) {
+        appEl.innerHTML = `
+          ${renderHeader()}
+          <div class="content" style="padding: 2rem; text-align: center;">
+            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 1.5rem; max-width: 600px; margin: 2rem auto; color: #856404;">
+              <strong>Configuration Required</strong>
+              <p style="margin: 0.75rem 0 0;">${app.configError}</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
       appEl.innerHTML = `
         ${renderHeader()}
         <div class="content">
