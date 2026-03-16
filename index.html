@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby — Personal Events Hub</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #f5f3f0;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+
+    #app {
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid #e5e1db;
+      padding: 1.5rem 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #6c5ce7, #ff6b9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: "Space Mono", monospace;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 0.5rem;
+      background-color: #f0ede8;
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid #e5e1db;
+    }
+
+    .view-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.2s;
+      color: #5c5c5c;
+    }
+
+    .view-btn.active {
+      background: white;
+      color: #6c5ce7;
+      box-shadow: 0 2px 4px rgba(108, 92, 231, 0.15);
+    }
+
+    .search-filter {
+      display: flex;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+    }
+
+    input[type="text"], select {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #e5e1db;
+      border-radius: 8px;
+      background-color: #f0ede8;
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      background-color: white;
+      border-color: #6c5ce7;
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+
+    /* Main Content */
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* Tabs/Mode Selection */
+    .mode-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e1db;
+      flex-wrap: wrap;
+    }
+
+    .mode-tab {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #9a9a9a;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+
+    .mode-tab.active {
+      color: #6c5ce7;
+      border-bottom-color: #6c5ce7;
+    }
+
+    /* Form Styles */
+    .form-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid #e5e1db;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: #1a1a1a;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+      padding: 0.7rem 0.9rem;
+      border: 1px solid #e5e1db;
+      border-radius: 8px;
+      background-color: #f0ede8;
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      font-family: "Space Mono", monospace;
+      font-size: 0.85rem;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      background-color: white;
+      border-color: #6c5ce7;
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    button {
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0.7rem 1.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6c5ce7, #5f4cd1);
+      color: white;
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: #f0ede8;
+      color: #5c5c5c;
+      border: 1px solid #e5e1db;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e5e1db;
+    }
+
+    .btn-delete {
+      background-color: #ff6b6b;
+      color: white;
+      padding: 0.5rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-delete:hover {
+      background-color: #ff5252;
+    }
+
+    /* Events Grid */
+    .events-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .events-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Event Card */
+    .event-card {
+      background: white;
+      border: 1px solid #e5e1db;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .event-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      border-color: #6c5ce7;
+    }
+
+    .event-card.past {
+      opacity: 0.55;
+    }
+
+    .event-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 0.5rem;
+    }
+
+    .event-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #1a1a1a;
+      flex: 1;
+    }
+
+    .event-title a {
+      color: #6c5ce7;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .event-title a:hover {
+      text-decoration: underline;
+    }
+
+    .event-delete-btn {
+      background: #f0ede8;
+      color: #ff6b6b;
+      border: none;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .event-delete-btn:hover {
+      background: #ff6b6b;
+      color: white;
+    }
+
+    .event-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      color: #5c5c5c;
+    }
+
+    .event-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .event-category {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      width: fit-content;
+    }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #5c5c5c;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f0ede8;
+    }
+
+    .section-header:first-of-type {
+      margin-top: 0;
+    }
+
+    /* Calendar View */
+    .calendar-container {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e5e1db;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .calendar-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .calendar-nav button {
+      padding: 0.5rem 1rem;
+    }
+
+    .calendar-month {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calendar-day-name {
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #5c5c5c;
+      padding: 0.5rem;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      border: 1px solid #e5e1db;
+      border-radius: 8px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      font-size: 0.85rem;
+      min-height: 80px;
+    }
+
+    .calendar-day:hover {
+      border-color: #6c5ce7;
+      background-color: #f9f8f7;
+    }
+
+    .calendar-day.other-month {
+      color: #9a9a9a;
+      background-color: #f9f8f7;
+    }
+
+    .calendar-day.today {
+      background-color: #f0e8ff;
+      border-color: #6c5ce7;
+      border-width: 2px;
+    }
+
+    .calendar-day-number {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .calendar-day-events {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .calendar-event-pill {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: white;
+    }
+
+    /* Map View */
+    #map {
+      width: 100%;
+      height: 600px;
+      border-radius: 12px;
+      border: 1px solid #e5e1db;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 768px) {
+      #map {
+        height: 400px;
+      }
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #e5e1db;
+      padding-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: #f0ede8;
+      color: #5c5c5c;
+      border: none;
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #e5e1db;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #5c5c5c;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e5e1db;
+      border-top-color: #6c5ce7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #9a9a9a;
+    }
+
+    .empty-state-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+      }
+
+      .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-filter {
+        max-width: 100%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-tabs {
+        gap: 0.25rem;
+      }
+
+      .mode-tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // Theme Configuration
+    const THEME = {
+      fontBody: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      fontMono: '"Space Mono", monospace',
+      bgPage: '#f5f3f0',
+      bgCard: '#ffffff',
+      bgInput: '#f0ede8',
+      bgModal: '#ffffff',
+      bgOverlay: 'rgba(0, 0, 0, 0.4)',
+      bgHover: '#f9f8f7',
+      textPrimary: '#1a1a1a',
+      textSecondary: '#5c5c5c',
+      textMuted: '#9a9a9a',
+      border: '#e5e1db',
+      borderHover: '#d4cfc7',
+      accent: '#6c5ce7',
+      accentHover: '#5f4cd1',
+      accentLight: '#f0e8ff',
+      accentText: '#6c5ce7',
+      accentGradient: 'linear-gradient(135deg, #6c5ce7, #ff6b9d)',
+      shadowSm: '0 2px 4px rgba(0, 0, 0, 0.05)',
+      shadowMd: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      shadowLg: '0 10px 24px rgba(0, 0, 0, 0.15)',
+      shadowAccent: '0 4px 12px rgba(108, 92, 231, 0.3)',
+      radiusSm: '8px',
+      radiusMd: '12px',
+      radiusLg: '16px',
+      radiusPill: '20px',
+      labelUpcoming: '#6c5ce7',
+      labelPast: '#9a9a9a',
+      labelUndated: '#ff9f43',
+      catColors: {
+        'Music': '#ff6b6b',
+        'Food': '#ffa502',
+        'Art': '#ff6b9d',
+        'Sports': '#13c2c2',
+        'Comedy': '#faad14',
+        'Tech': '#1890ff',
+        'Theater': '#722ed1',
+        'Other': '#5c5c5c'
+      },
+      maxWidth: 900,
+      headerPadding: '1.5rem 1rem',
+      contentPadding: '1.5rem 1rem'
+    };
+
+    const T = THEME;
+    const CATEGORIES = Object.keys(T.catColors);
+    const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Supabase Setup - credentials injected at build time
+    const SUPABASE_URL = '{{SUPABASE_URL}}';
+    const SUPABASE_KEY = '{{SUPABASE_KEY}}';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // App State
+    let app = {
+      view: 'list', // 'list', 'calendar', 'map'
+      inputMode: 'manual', // 'manual', 'paste', 'url'
+      events: [],
+      searchTerm: '',
+      filterCategory: '',
+      currentMonth: new Date(),
+      map: null,
+      markers: [],
+      loading: true,
+      userId: null
+    };
+
+    // Utility Functions
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function parseDate(dateStr, timeStr) {
+      try {
+        if (!dateStr) return null;
+        const d = new Date(dateStr + 'T' + (timeStr || '00:00'));
+        return d.toISOString();
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function formatTime(isoString) {
+      if (!isoString) return '';
+      const d = new Date(isoString);
+      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDate(isoString) {
+      if (!isoString) return 'No date';
+      const d = new Date(isoString);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function dateKey(isoString) {
+      if (!isoString) return 'no-date';
+      return isoString.split('T')[0];
+    }
+
+    function isEventPast(isoString) {
+      if (!isoString) return false;
+      return new Date(isoString) < new Date();
+    }
+
+    function getCoordinates(location) {
+      // Simple mock coordinates - in production would use geocoding API
+      const coords = {
+        'Broomall': [39.9519, -75.3554],
+        'Philadelphia': [39.9526, -75.1652],
+        'Media': [39.9176, -75.3906],
+        'Chester': [39.8436, -75.3606],
+        'default': [39.9519, -75.3554]
+      };
+
+      for (let key in coords) {
+        if (location.toLowerCase().includes(key.toLowerCase())) {
+          return coords[key];
+        }
+      }
+      return coords.default;
+    }
+
+    function smartParse(text) {
+      // Extract name (first line or sentence)
+      const lines = text.split('\n').filter(l => l.trim());
+      const name = lines[0] || '';
+
+      // Extract date patterns
+      let dateStr = '';
+      const datePattern = /(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\w+\s+\d{1,2})/i;
+      const dateMatch = text.match(datePattern);
+      if (dateMatch) dateStr = dateMatch[1];
+
+      // Extract time
+      let timeStr = '';
+      const timePattern = /(\d{1,2}):(\d{2})\s*(am|pm)?/i;
+      const timeMatch = text.match(timePattern);
+      if (timeMatch) timeStr = timeMatch[0];
+
+      // Extract location
+      let location = '';
+      const locPattern = /(at|location:?|venue:?)\s*([^,\n]+)/i;
+      const locMatch = text.match(locPattern);
+      if (locMatch) location = locMatch[2].trim();
+
+      // Extract URL
+      let link = '';
+      const urlPattern = /(https?:\/\/[^\s]+)/;
+      const urlMatch = text.match(urlPattern);
+      if (urlMatch) link = urlMatch[1];
+
+      return { name, dateStr, timeStr, location, link };
+    }
+
+    // Supabase Operations
+    async function initSupabase() {
+      try {
+        // Initialize table if needed (in production, do this via Supabase UI)
+        app.loading = true;
+        await loadEvents();
+        app.loading = false;
+      } catch (err) {
+        console.error('Supabase init error:', err);
+        app.loading = false;
+      }
+    }
+
+    async function loadEvents() {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('datetime', { ascending: true, nullsFirst: true });
+
+        if (error) throw error;
+        app.events = data || [];
+        render();
+      } catch (err) {
+        console.error('Load events error:', err);
+        // Fallback to empty array
+        app.events = [];
+        render();
+      }
+    }
+
+    async function saveEvent(event) {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .insert([event])
+          .select();
+
+        if (error) throw error;
+        app.events.push(data[0]);
+        render();
+      } catch (err) {
+        console.error('Save event error:', err);
+      }
+    }
+
+    async function deleteEvent(id) {
+      try {
+        const { error } = await supabase
+          .from('events')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        app.events = app.events.filter(e => e.id !== id);
+        render();
+      } catch (err) {
+        console.error('Delete event error:', err);
+      }
+    }
+
+    // UI Functions
+    function catColor(category) {
+      return T.catColors[category] || T.catColors['Other'];
+    }
+
+    function getFilteredEvents() {
+      return app.events.filter(e => {
+        const matchesSearch = !app.searchTerm ||
+          e.name.toLowerCase().includes(app.searchTerm.toLowerCase()) ||
+          (e.location && e.location.toLowerCase().includes(app.searchTerm.toLowerCase()));
+
+        const matchesFilter = !app.filterCategory || e.category === app.filterCategory;
+
+        return matchesSearch && matchesFilter;
+      });
+    }
+
+    function groupEventsByStatus(events) {
+      const upcoming = [];
+      const past = [];
+      const undated = [];
+
+      events.forEach(e => {
+        if (!e.datetime) {
+          undated.push(e);
+        } else if (isEventPast(e.datetime)) {
+          past.push(e);
+        } else {
+          upcoming.push(e);
+        }
+      });
+
+      return { upcoming, past, undated };
+    }
+
+    function createEventCard(event) {
+      const isPast = isEventPast(event.datetime);
+      const cardClass = isPast ? 'event-card past' : 'event-card';
+
+      let titleHtml = event.name;
+      if (event.link) {
+        titleHtml = `<a href="${event.link}" target="_blank">${event.name} ↗</a>`;
+      }
+
+      const dateStr = event.datetime ? formatDate(event.datetime) : 'No date';
+      const timeStr = event.datetime ? formatTime(event.datetime) : '';
+
+      return `
+        <div class="${cardClass}">
+          <div class="event-card-header">
+            <div class="event-title">${titleHtml}</div>
+            <button class="event-delete-btn" onclick="app.events = app.events; deleteEvent('${event.id}')">×</button>
+          </div>
+          <div class="event-meta">
+            ${event.datetime ? `<div class="event-meta-item">📅 ${dateStr} ${timeStr}</div>` : ''}
+            ${event.location ? `<div class="event-meta-item">📍 ${event.location}</div>` : ''}
+            <div class="event-category" style="background-color: ${catColor(event.category)}15; color: ${catColor(event.category)}">${event.category}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderListView() {
+      const filtered = getFilteredEvents();
+      const { upcoming, past, undated } = groupEventsByStatus(filtered);
+
+      let html = '';
+
+      if (upcoming.length > 0) {
+        html += `<div class="section-header">📆 Upcoming</div>`;
+        html += `<div class="events-container">${upcoming.map(createEventCard).join('')}</div>`;
+      }
+
+      if (undated.length > 0) {
+        html += `<div class="section-header">❓ No Date Set</div>`;
+        html += `<div class="events-container">${undated.map(createEventCard).join('')}</div>`;
+      }
+
+      if (past.length > 0) {
+        html += `<div class="section-header">⏳ Past</div>`;
+        html += `<div class="events-container">${past.map(createEventCard).join('')}</div>`;
+      }
+
+      if (filtered.length === 0) {
+        html = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No events found</p></div>';
+      }
+
+      return html;
+    }
+
+    function renderCalendarView() {
+      const year = app.currentMonth.getFullYear();
+      const month = app.currentMonth.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDayOfWeek = firstDay.getDay();
+
+      let html = `
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button class="btn-secondary" onclick="app.currentMonth.setMonth(app.currentMonth.getMonth() - 1); render();">← Prev</button>
+            <div class="calendar-month">${MONTH_NAMES[month]} ${year}</div>
+            <button class="btn-secondary" onclick="app.currentMonth.setMonth(app.currentMonth.getMonth() + 1); render();">Next →</button>
+          </div>
+          <div class="calendar-grid">
+      `;
+
+      // Day names
+      DAY_NAMES.forEach(day => {
+        html += `<div class="calendar-day-name">${day}</div>`;
+      });
+
+      // Empty cells before month starts
+      for (let i = 0; i < startingDayOfWeek; i++) {
+        html += `<div class="calendar-day other-month"></div>`;
+      }
+
+      // Days of month
+      const today = new Date();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayEvents = app.events.filter(e => e.datetime && dateKey(e.datetime) === dateStr);
+
+        const isToday = date.toDateString() === today.toDateString();
+        const dayClass = isToday ? 'calendar-day today' : 'calendar-day';
+
+        html += `<div class="${dayClass}">
+          <div class="calendar-day-number">${day}</div>
+          <div class="calendar-day-events">
+            ${dayEvents.map(e => `<div class="calendar-event-pill" style="background-color: ${catColor(e.category)}">${e.name}</div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      // Empty cells after month ends
+      const totalCells = startingDayOfWeek + daysInMonth;
+      const emptyEnd = (7 - (totalCells % 7)) % 7;
+      for (let i = 0; i < emptyEnd; i++) {
+        html += `<div class="calendar-day other-month"></div>`;
+      }
+
+      html += `</div></div>`;
+      return html;
+    }
+
+    function renderMapView() {
+      const filtered = getFilteredEvents();
+
+      setTimeout(() => {
+        // Initialize map if not already done
+        if (!app.map) {
+          app.map = L.map('map').setView([39.9519, -75.3554], 11);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+          }).addTo(app.map);
+        }
+
+        // Clear old markers
+        app.markers.forEach(m => app.map.removeLayer(m));
+        app.markers = [];
+
+        // Add markers for events
+        filtered.forEach(event => {
+          if (event.location) {
+            const coords = getCoordinates(event.location);
+            const marker = L.circleMarker(coords, {
+              radius: 8,
+              fillColor: catColor(event.category),
+              color: '#fff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.8
+            }).addTo(app.map);
+
+            marker.bindPopup(`<strong>${event.name}</strong><br>${event.location}`);
+            app.markers.push(marker);
+          }
+        });
+      }, 100);
+
+      return '<div id="map"></div>';
+    }
+
+    function renderHeader() {
+      return `
+        <div class="header">
+          <div class="header-content">
+            <div class="header-title">🗺️ Nearby</div>
+            <div class="header-controls">
+              <div class="view-toggle">
+                <button class="view-btn ${app.view === 'list' ? 'active' : ''}" onclick="app.view = 'list'; render();">List</button>
+                <button class="view-btn ${app.view === 'calendar' ? 'active' : ''}" onclick="app.view = 'calendar'; render();">Calendar</button>
+                <button class="view-btn ${app.view === 'map' ? 'active' : ''}" onclick="app.view = 'map'; render();">Map</button>
+              </div>
+              <div class="search-filter">
+                <input type="text" placeholder="Search events..." onchange="app.searchTerm = this.value; render();" oninput="app.searchTerm = this.value; render();">
+                <select onchange="app.filterCategory = this.value; render();">
+                  <option value="">All Categories</option>
+                  ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFormMode() {
+      if (app.inputMode === 'manual') {
+        return `
+          <div class="form-container">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Event Name *</label>
+                <input type="text" id="eventName" placeholder="e.g., Live at The Fillmore">
+              </div>
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="eventDate">
+              </div>
+              <div class="form-group">
+                <label>Time</label>
+                <input type="time" id="eventTime">
+              </div>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="eventLocation" placeholder="e.g., Broomall, PA">
+              </div>
+              <div class="form-group">
+                <label>Link</label>
+                <input type="text" id="eventLink" placeholder="https://...">
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="eventCategory">
+                  ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-secondary" onclick="clearForm();">Clear</button>
+              <button class="btn-primary" onclick="submitForm();">Add Event</button>
+            </div>
+          </div>
+        `;
+      } else if (app.inputMode === 'paste') {
+        return `
+          <div class="form-container">
+            <div class="form-group">
+              <label>Paste Event Text</label>
+              <textarea id="pasteText" placeholder="Paste a flyer, email, social post, etc. We'll try to extract the details."></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn-secondary" onclick="document.getElementById('pasteText').value = '';">Clear</button>
+              <button class="btn-primary" onclick="parsePaste();">Parse & Fill Form</button>
+            </div>
+          </div>
+        `;
+      } else if (app.inputMode === 'url') {
+        return `
+          <div class="form-container">
+            <div class="form-group">
+              <label>Event URL</label>
+              <input type="text" id="eventUrl" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label>Event Name *</label>
+              <input type="text" id="eventName" placeholder="e.g., Live at The Fillmore">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="eventDate">
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" id="eventTime">
+            </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" id="eventLocation" placeholder="e.g., Broomall, PA">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="eventCategory">
+                ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn-secondary" onclick="clearForm();">Clear</button>
+              <button class="btn-primary" onclick="submitForm();">Add Event</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderContent() {
+      if (app.loading) {
+        return '<div class="loading"><div class="spinner"></div></div>';
+      }
+
+      let content = '';
+      switch (app.view) {
+        case 'list':
+          content = renderListView();
+          break;
+        case 'calendar':
+          content = renderCalendarView();
+          break;
+        case 'map':
+          content = renderMapView();
+          break;
+      }
+      return content;
+    }
+
+    function render() {
+      const appEl = document.getElementById('app');
+      appEl.innerHTML = `
+        ${renderHeader()}
+        <div class="content">
+          <div class="mode-tabs">
+            <button class="mode-tab ${app.inputMode === 'manual' ? 'active' : ''}" onclick="app.inputMode = 'manual'; render();">Manual</button>
+            <button class="mode-tab ${app.inputMode === 'paste' ? 'active' : ''}" onclick="app.inputMode = 'paste'; render();">Paste Text</button>
+            <button class="mode-tab ${app.inputMode === 'url' ? 'active' : ''}" onclick="app.inputMode = 'url'; render();">From URL</button>
+          </div>
+          ${renderFormMode()}
+          <div class="content">
+            ${renderContent()}
+          </div>
+        </div>
+      `;
+    }
+
+    // Form Handlers
+    function clearForm() {
+      document.getElementById('eventName').value = '';
+      document.getElementById('eventDate').value = '';
+      document.getElementById('eventTime').value = '';
+      document.getElementById('eventLocation').value = '';
+      document.getElementById('eventLink').value = '';
+      document.getElementById('eventCategory').value = 'Other';
+    }
+
+    function parsePaste() {
+      const text = document.getElementById('pasteText').value;
+      const parsed = smartParse(text);
+
+      document.getElementById('eventName').value = parsed.name;
+      document.getElementById('eventLocation').value = parsed.location;
+      document.getElementById('eventLink').value = parsed.link;
+
+      // Try to parse date
+      if (parsed.dateStr) {
+        // Convert various date formats to YYYY-MM-DD
+        let dateObj = new Date(parsed.dateStr);
+        if (isNaN(dateObj)) {
+          dateObj = new Date(); // fallback to today
+        }
+        document.getElementById('eventDate').value = dateObj.toISOString().split('T')[0];
+      }
+
+      if (parsed.timeStr) {
+        document.getElementById('eventTime').value = parsed.timeStr.replace(/\s+(am|pm)/i, '').trim();
+      }
+
+      app.inputMode = 'manual';
+      render();
+    }
+
+    async function submitForm() {
+      const name = document.getElementById('eventName').value.trim();
+      if (!name) {
+        alert('Event name is required');
+        return;
+      }
+
+      const dateStr = document.getElementById('eventDate').value;
+      const timeStr = document.getElementById('eventTime').value;
+      const location = document.getElementById('eventLocation').value.trim();
+      const link = document.getElementById('eventLink').value.trim();
+      const category = document.getElementById('eventCategory').value;
+
+      // For URL mode, get the URL
+      let urlValue = '';
+      const urlInput = document.getElementById('eventUrl');
+      if (urlInput) {
+        urlValue = urlInput.value.trim();
+      }
+
+      const datetime = parseDate(dateStr, timeStr);
+
+      const event = {
+        id: generateId(),
+        name,
+        datetime,
+        dateRaw: dateStr,
+        timeRaw: timeStr,
+        location,
+        link: urlValue || link,
+        category,
+        created: new Date().toISOString()
+      };
+
+      await saveEvent(event);
+      clearForm();
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      initSupabase();
+    });
+  </script>
+</body>
+</html>
