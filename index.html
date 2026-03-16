@@ -808,6 +808,7 @@
         app.loading = true;
         await loadEvents();
         app.loading = false;
+        render();
       } catch (err) {
         console.error('Supabase init error:', err);
         app.loading = false;
