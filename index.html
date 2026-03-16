@@ -900,7 +900,13 @@
     const SUPABASE_KEY = '{{SUPABASE_KEY}}';
     const SUPABASE_CONFIGURED = !SUPABASE_URL.startsWith('{{') && !SUPABASE_KEY.startsWith('{{');
     const supabaseClient = SUPABASE_CONFIGURED
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+          }
+        })
       : null;
 
     // Expose to window so the debug panel (separate script scope) can read them
@@ -921,7 +927,8 @@
       markers: [],
       loading: true,
       userId: null,
-      configError: null
+      configError: null,
+      networkError: null
     };
 
     // Utility Functions
@@ -1022,38 +1029,30 @@
         return;
       }
       try {
-        // Initialize table if needed (in production, do this via Supabase UI)
         app.loading = true;
         console.log('[initSupabase] loading events...');
         await loadEvents();
         app.loading = false;
-        console.log('[initSupabase] events loaded, app.loading set to false, triggering render');
+        console.log('[initSupabase] events loaded successfully, count:', app.events.length);
         render();
       } catch (err) {
-        console.error('[initSupabase] error:', err);
+        console.error('[initSupabase] error loading events:', err);
         app.loading = false;
+        app.networkError = err.message || 'Unable to connect to Supabase. The project may be paused or unreachable.';
         render();
       }
     }
 
     async function loadEvents() {
       console.log('[loadEvents] fetching events from Supabase...');
-      try {
-        const { data, error } = await supabaseClient
-          .from('events')
-          .select('*')
-          .order('datetime', { ascending: true, nullsFirst: true });
+      const { data, error } = await supabaseClient
+        .from('events')
+        .select('*')
+        .order('datetime', { ascending: true, nullsFirst: true });
 
-        if (error) throw error;
-        app.events = data || [];
-        console.log('[loadEvents] success, loaded', app.events.length, 'events');
-        render();
-      } catch (err) {
-        console.error('[loadEvents] error:', err);
-        // Fallback to empty array
-        app.events = [];
-        render();
-      }
+      if (error) throw error;
+      app.events = data || [];
+      console.log('[loadEvents] success, loaded', app.events.length, 'events');
     }
 
     function showToast(message, type = 'success') {
@@ -1406,6 +1405,16 @@
     function renderContent() {
       if (app.loading) {
         return '<div class="loading"><div class="spinner"></div></div>';
+      }
+
+      if (app.networkError) {
+        return `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p style="font-weight: 600; margin-bottom: 0.5rem;">Unable to connect to Supabase</p>
+            <p style="font-size: 0.85rem; color: #5c5c5c; margin-bottom: 1rem;">${app.networkError}</p>
+            <button class="btn-secondary" onclick="app.networkError = null; initSupabase();">Retry</button>
+          </div>`;
       }
 
       let content = '';
