@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -841,162 +842,282 @@
   </footer>
 
   <script>
-    // ── Tag data ────────────────────────────────────────────────────────────
-    const CATEGORIES = [
-      { label: '#music',     value: 'music',     color: '#6c5ce7' },
-      { label: '#arts',      value: 'arts',      color: '#e55a4e' },
-      { label: '#food',      value: 'food',      color: '#f59e0b' },
-      { label: '#outdoors',  value: 'outdoors',  color: '#10b981' },
-      { label: '#sports',    value: 'sports',    color: '#3b82f6' },
-      { label: '#community', value: 'community', color: '#ec4899' },
-      { label: '#markets',   value: 'markets',   color: '#8b5cf6' },
-      { label: '#fitness',   value: 'fitness',   color: '#06b6d4' },
-      { label: '#family',    value: 'family',    color: '#f97316' },
-      { label: '#comedy',    value: 'comedy',    color: '#eab308' },
-      { label: '#theatre',   value: 'theatre',   color: '#d946ef' },
-      { label: '#nightlife', value: 'nightlife', color: '#6366f1' },
-    ];
+    // ── Supabase credentials (injected at build time) ────────────────────────
+    const SUPABASE_URL = '{{SUPABASE_URL}}';
+    const SUPABASE_KEY = '{{SUPABASE_KEY}}';
 
-    // ── Mock events ─────────────────────────────────────────────────────────
-    const EVENTS = [
-      {
-        id: '1',
-        title: 'Jazz Night at the Rustic Cellar',
-        location: 'Media, PA',
-        category: 'music',
-        date: 'Today',
-        time: '7:30 PM',
-        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&h=400&fit=crop',
-      },
-      {
-        id: '2',
-        title: 'Farmers Market — Spring Edition',
-        location: 'Broomall, PA',
-        category: 'markets',
-        date: 'Saturday',
-        time: '9:00 AM',
-        imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=400&fit=crop',
-      },
-      {
-        id: '3',
-        title: 'Wissahickon Trail Morning Hike',
-        location: 'Chestnut Hill, PA',
-        category: 'outdoors',
-        date: 'Sunday',
-        time: '8:00 AM',
-        imageUrl: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&h=400&fit=crop',
-      },
-    ];
+    // ── Category config (must match the app's catColors) ────────────────────
+    const CAT_COLORS = {
+      'Music':   '#ff6b6b',
+      'Food':    '#ffa502',
+      'Art':     '#ff6b9d',
+      'Sports':  '#13c2c2',
+      'Comedy':  '#faad14',
+      'Tech':    '#1890ff',
+      'Theater': '#722ed1',
+      'Other':   '#5c5c5c',
+    };
 
-    const catColors = Object.fromEntries(CATEGORIES.map(c => [c.value, c.color]));
+    const CAT_GRADIENTS = {
+      'Music':   'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
+      'Food':    'linear-gradient(135deg, #ffa502 0%, #ff6b00 100%)',
+      'Art':     'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+      'Sports':  'linear-gradient(135deg, #13c2c2 0%, #006d75 100%)',
+      'Comedy':  'linear-gradient(135deg, #faad14 0%, #d48806 100%)',
+      'Tech':    'linear-gradient(135deg, #1890ff 0%, #0050b3 100%)',
+      'Theater': 'linear-gradient(135deg, #722ed1 0%, #391085 100%)',
+      'Other':   'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
+    };
 
-    // ── State ───────────────────────────────────────────────────────────────
-    let activeTag = null;
-    let activeDateIndex = 0;
+    const CAT_EMOJI = {
+      'Music':'🎵', 'Food':'🍴', 'Art':'🎨', 'Sports':'⚽',
+      'Comedy':'😂', 'Tech':'💻', 'Theater':'🎭', 'Other':'📌',
+    };
 
-    // ── Tag Bar ─────────────────────────────────────────────────────────────
-    function renderTags() {
+    // ── State ────────────────────────────────────────────────────────────────
+    let allEvents = [];
+    let activeCat = null;
+    let activeDateIndex = null; // null = show all upcoming
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function dateKey(isoStr) {
+      if (!isoStr) return null;
+      return new Date(isoStr).toLocaleDateString('en-CA'); // YYYY-MM-DD local
+    }
+
+    function offsetDateKey(offset) {
+      const d = new Date();
+      d.setDate(d.getDate() + offset);
+      return d.toLocaleDateString('en-CA');
+    }
+
+    function fmtDate(isoStr) {
+      if (!isoStr) return 'Date TBD';
+      const d = new Date(isoStr);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+      d.setHours(0,0,0,0);
+      if (d.getTime() === today.getTime()) return 'Today';
+      if (d.getTime() === tomorrow.getTime()) return 'Tomorrow';
+      return new Date(isoStr).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    }
+
+    function fmtTime(isoStr) {
+      if (!isoStr) return '';
+      return new Date(isoStr).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    }
+
+    function buildDateCounts(events) {
+      const counts = {};
+      events.forEach(e => {
+        const k = dateKey(e.datetime);
+        if (k) counts[k] = (counts[k] || 0) + 1;
+      });
+      return counts;
+    }
+
+    function getCategoriesFromEvents(events) {
+      const seen = new Set(events.map(e => e.category).filter(Boolean));
+      return [...seen].sort().map(cat => ({
+        label: `#${cat.toLowerCase()}`,
+        value: cat,
+        color: CAT_COLORS[cat] || '#6c5ce7',
+      }));
+    }
+
+    function getFilteredEvents() {
+      let events = allEvents;
+      if (activeCat) events = events.filter(e => e.category === activeCat);
+      if (activeDateIndex !== null) {
+        const k = offsetDateKey(activeDateIndex);
+        const byDate = events.filter(e => dateKey(e.datetime) === k);
+        if (byDate.length > 0) return byDate;
+      }
+      return events;
+    }
+
+    // ── Render: Tags ─────────────────────────────────────────────────────────
+    function renderTags(categories) {
       const list = document.getElementById('tag-list');
-      list.innerHTML = CATEGORIES.map(cat => {
-        const isActive = activeTag === cat.value;
-        return `<button
-          class="tag-chip${isActive ? ' active' : ''}"
-          data-tag="${cat.value}"
-          style="${isActive ? `background:${cat.color};` : ''}"
-        >${cat.label}</button>`;
+      if (!categories.length) {
+        list.innerHTML = '<span style="color:var(--text-muted);font-size:13px;padding:6px 0;">No categories yet</span>';
+        return;
+      }
+      list.innerHTML = categories.map(cat => {
+        const isActive = activeCat === cat.value;
+        return `<button class="tag-chip${isActive ? ' active' : ''}" data-tag="${esc(cat.value)}"
+          style="${isActive ? `background:${cat.color};border-color:${cat.color};` : ''}"
+        >${esc(cat.label)}</button>`;
       }).join('');
 
       list.querySelectorAll('.tag-chip').forEach(btn => {
         btn.addEventListener('click', () => {
-          activeTag = activeTag === btn.dataset.tag ? null : btn.dataset.tag;
-          renderTags();
+          activeCat = activeCat === btn.dataset.tag ? null : btn.dataset.tag;
+          renderTags(categories);
           renderEvents();
         });
       });
     }
 
-    document.getElementById('scroll-left').addEventListener('click', () => {
-      document.getElementById('tag-list').scrollBy({ left: -200, behavior: 'smooth' });
-    });
-    document.getElementById('scroll-right').addEventListener('click', () => {
-      document.getElementById('tag-list').scrollBy({ left: 200, behavior: 'smooth' });
-    });
-
-    // ── Date Strip ──────────────────────────────────────────────────────────
+    // ── Render: Date Strip ───────────────────────────────────────────────────
     const DAY_ABBR = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-    const mockCounts = [4,7,2,9,5,12,8,3,6,4,7,2,5,3];
 
-    function renderDates() {
+    function renderDates(dateCounts) {
       const today = new Date();
       const grid = document.getElementById('date-grid');
       grid.innerHTML = Array.from({ length: 14 }, (_, i) => {
         const d = new Date(today);
         d.setDate(today.getDate() + i);
         const label = i === 0 ? 'TODAY' : i === 1 ? 'TOM' : DAY_ABBR[d.getDay()];
+        const k = d.toLocaleDateString('en-CA');
+        const count = dateCounts[k] || 0;
         const isActive = activeDateIndex === i;
         return `<button class="date-btn${isActive ? ' active' : ''}" data-i="${i}">
           <span class="date-day">${label}</span>
           <span class="date-num">${d.getDate()}</span>
-          <span class="date-count">${mockCounts[i]}</span>
+          <span class="date-count">${count > 0 ? count : '–'}</span>
         </button>`;
       }).join('');
 
       grid.querySelectorAll('.date-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          activeDateIndex = parseInt(btn.dataset.i);
-          renderDates();
+          const i = parseInt(btn.dataset.i);
+          activeDateIndex = activeDateIndex === i ? null : i;
+          renderDates(dateCounts);
+          renderEvents();
         });
       });
     }
 
-    document.getElementById('weekend-btn').addEventListener('click', () => {
-      const today = new Date();
-      const day = today.getDay();
-      activeDateIndex = 6 - day;
-      renderDates();
-    });
-
-    // ── Events Grid ─────────────────────────────────────────────────────────
+    // ── Render: Events Grid ──────────────────────────────────────────────────
     function renderEvents() {
-      const filtered = activeTag ? EVENTS.filter(e => e.category === activeTag) : EVENTS;
+      const events = getFilteredEvents();
       document.getElementById('events-heading').textContent =
-        `${filtered.length} Event${filtered.length !== 1 ? 's' : ''} · Upcoming`;
+        `${events.length} Event${events.length !== 1 ? 's' : ''} · Upcoming`;
 
-      document.getElementById('events-grid').innerHTML = filtered.length === 0
-        ? `<div style="grid-column:1/-1; text-align:center; padding:64px 24px; background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border);">
-            <p style="color:var(--text-muted)">No events for this category.</p>
-            <button onclick="activeTag=null;renderTags();renderEvents();" style="margin-top:8px;font-size:14px;color:var(--primary);background:none;border:none;cursor:pointer;">Clear filter</button>
-           </div>`
-        : filtered.map(event => {
-          const color = catColors[event.category] || '#6c5ce7';
-          return `<div class="event-card">
-            <div class="event-img-wrap">
-              <img class="event-img" src="${event.imageUrl}" alt="${event.title}" loading="lazy">
-              <span class="event-tag-badge" style="color:${color};">#${event.category}</span>
-            </div>
-            <div class="event-body">
-              <div class="event-location">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                ${event.location}
-              </div>
-              <h3 class="event-title">${event.title}</h3>
-              <p class="event-time">${event.date} · ${event.time}</p>
-              <div class="event-actions">
-                <button class="event-link-btn">
-                  Visit Site
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </button>
-                <button class="event-save-btn">+ Save</button>
-              </div>
-            </div>
+      if (events.length === 0) {
+        document.getElementById('events-grid').innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:64px 24px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border);">
+            <p style="color:var(--text-muted)">No events match this filter.</p>
+            <button id="clear-filters-btn" style="margin-top:8px;font-size:14px;color:var(--primary);background:none;border:none;cursor:pointer;">Clear filters</button>
           </div>`;
-        }).join('');
+        document.getElementById('clear-filters-btn').addEventListener('click', () => {
+          activeCat = null; activeDateIndex = null;
+          renderTags(getCategoriesFromEvents(allEvents));
+          renderDates(buildDateCounts(allEvents));
+          renderEvents();
+        });
+        return;
+      }
+
+      document.getElementById('events-grid').innerHTML = events.map(event => {
+        const color = CAT_COLORS[event.category] || '#6c5ce7';
+        const gradient = CAT_GRADIENTS[event.category] || CAT_GRADIENTS['Other'];
+        const emoji = CAT_EMOJI[event.category] || '📌';
+        const catLabel = event.category ? `#${event.category.toLowerCase()}` : '';
+        const timeStr = fmtTime(event.datetime);
+        const timeDisplay = timeStr ? `${fmtDate(event.datetime)} · ${timeStr}` : fmtDate(event.datetime);
+
+        return `<div class="event-card">
+          <div class="event-img-wrap" style="background:${gradient};display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:40px;">${emoji}</span>
+            ${catLabel ? `<span class="event-tag-badge" style="color:${color};">${esc(catLabel)}</span>` : ''}
+          </div>
+          <div class="event-body">
+            ${event.location ? `<div class="event-location">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${esc(event.location)}
+            </div>` : ''}
+            <h3 class="event-title">${esc(event.name)}</h3>
+            <p class="event-time">${esc(timeDisplay)}</p>
+            <div class="event-actions">
+              ${event.link ? `<a href="${esc(event.link)}" target="_blank" rel="noopener" class="event-link-btn">
+                Visit Site
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>` : ''}
+              <a href="app/" style="margin-left:auto;font-size:12px;font-weight:500;color:var(--text-muted);text-decoration:none;">Open App →</a>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
     }
 
-    // ── Init ────────────────────────────────────────────────────────────────
-    renderTags();
-    renderDates();
-    renderEvents();
+    // ── Loading / Error states ────────────────────────────────────────────────
+    function showLoading() {
+      document.getElementById('events-grid').innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:64px 24px;">
+          <p style="color:var(--text-muted)">Loading events…</p>
+        </div>`;
+    }
+
+    function showError(msg) {
+      document.getElementById('events-grid').innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:64px 24px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border);">
+          <p style="color:var(--text-muted)">${esc(msg)}</p>
+          <a href="app/" style="display:inline-block;margin-top:12px;font-size:14px;color:var(--primary);">Open App →</a>
+        </div>`;
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    async function init() {
+      showLoading();
+
+      document.getElementById('scroll-left').addEventListener('click', () => {
+        document.getElementById('tag-list').scrollBy({ left: -200, behavior: 'smooth' });
+      });
+      document.getElementById('scroll-right').addEventListener('click', () => {
+        document.getElementById('tag-list').scrollBy({ left: 200, behavior: 'smooth' });
+      });
+
+      document.getElementById('weekend-btn').addEventListener('click', () => {
+        const day = new Date().getDay(); // 0=Sun … 6=Sat
+        activeDateIndex = day === 0 ? 0 : 6 - day; // jump to this Saturday
+        renderDates(buildDateCounts(allEvents));
+        renderEvents();
+      });
+
+      // If credentials weren't injected (local dev without build), show empty state
+      if (SUPABASE_URL.startsWith('{{')) {
+        renderTags([]);
+        renderDates({});
+        renderEvents();
+        return;
+      }
+
+      try {
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const now = new Date().toISOString();
+        const { data, error } = await client
+          .from('events')
+          .select('id, name, datetime, location, category, link')
+          .gte('datetime', now)
+          .order('datetime', { ascending: true });
+
+        if (error) throw error;
+        allEvents = data || [];
+      } catch (err) {
+        console.error('Supabase fetch failed:', err);
+        showError('Could not load events. ' + (err.message || ''));
+        renderTags([]);
+        renderDates({});
+        return;
+      }
+
+      const categories = getCategoriesFromEvents(allEvents);
+      const dateCounts = buildDateCounts(allEvents);
+      renderTags(categories);
+      renderDates(dateCounts);
+      renderEvents();
+    }
+
+    init();
   </script>
 </body>
 </html>

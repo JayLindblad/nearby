@@ -19,10 +19,12 @@ const appDir = path.join(distDir, 'app');
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir);
 if (!fs.existsSync(appDir)) fs.mkdirSync(appDir);
 
-// Build landing page → dist/index.html (no env vars needed)
-const landingSource = path.join(__dirname, 'landing.html');
-fs.copyFileSync(landingSource, path.join(distDir, 'index.html'));
-console.log('✓ Copied landing.html → dist/index.html');
+// Build landing page → dist/index.html (inject Supabase credentials for live data)
+let landingContent = fs.readFileSync(path.join(__dirname, 'landing.html'), 'utf8');
+landingContent = landingContent.replace('{{SUPABASE_URL}}', SUPABASE_URL);
+landingContent = landingContent.replace('{{SUPABASE_KEY}}', SUPABASE_KEY);
+fs.writeFileSync(path.join(distDir, 'index.html'), landingContent, 'utf8');
+console.log('✓ Built landing.html with env vars → dist/index.html');
 
 // Build app → dist/app/index.html (inject Supabase credentials)
 let appContent = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
