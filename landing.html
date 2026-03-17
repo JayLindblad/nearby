@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby — Personal Events Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --bg-page: #f5f3f0;
+      --bg-card: #ffffff;
+      --bg-hover: #faf8f5;
+      --bg-header: rgba(255,255,255,0.95);
+      --bg-secondary: #f0ede8;
+      --bg-tag: #f0ede8;
+      --text-primary: #181c27;
+      --text-secondary: #5c5e6e;
+      --text-muted: #9296a5;
+      --primary: #e55a4e;
+      --primary-hover: #cc4a3f;
+      --accent: #6c5ce7;
+      --accent-hover: #5a4db3;
+      --accent-light: #f3efff;
+      --gradient: linear-gradient(135deg, #e55a4e 0%, #6c5ce7 100%);
+      --hero-overlay: linear-gradient(135deg, rgba(229,90,78,0.92) 0%, rgba(108,92,231,0.85) 100%);
+      --border: #e1e3e8;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+      --shadow-md: 0 4px 20px -4px rgba(24,28,39,0.10);
+      --shadow-lg: 0 8px 32px rgba(24,28,39,0.16);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --max-width: 1100px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-heading);
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { font-family: var(--font-body); cursor: pointer; }
+
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+
+    .search-wrap {
+      flex: 1;
+      max-width: 480px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+      display: flex;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 12px 9px 38px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: var(--bg-secondary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+
+    .nav-btn:hover { background: var(--bg-secondary); }
+
+    .nav-cta {
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: var(--gradient);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 4px;
+      transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
+    .nav-cta:hover { opacity: 0.9; box-shadow: var(--shadow-md); }
+
+    /* ── Tag Bar ── */
+    .tag-bar {
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .tag-bar-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag-label {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .tag-scroll-btn {
+      flex-shrink: 0;
+      padding: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      transition: color 0.15s;
+    }
+
+    .tag-scroll-btn:hover { color: var(--text-primary); }
+
+    .tag-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tag-list::-webkit-scrollbar { display: none; }
+
+    .tag-chip {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--bg-tag);
+      color: var(--text-primary);
+      transition: all 0.15s;
+    }
+
+    .tag-chip:hover {
+      background: var(--bg-secondary);
+      border-color: var(--text-muted);
+    }
+
+    .tag-chip.active {
+      border: none;
+      color: #fff;
+    }
+
+    /* ── Hero Banner ── */
+    .hero-banner {
+      position: relative;
+      overflow: hidden;
+      background: #2d1f4e;
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--hero-overlay);
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 40px 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hero-eyebrow {
+      font-size: 12px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 5vw, 40px);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .hero-sub {
+      color: rgba(255,255,255,0.75);
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    .hero-arrow {
+      opacity: 0.7;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Events Near Me Button ── */
+    .events-near-me {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: var(--text-primary);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-md);
+    }
+
+    .events-near-me:hover {
+      background: #111827;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ── Date Strip ── */
+    .date-strip {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      padding: 20px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .date-strip-label {
+      font-size: 11px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .date-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+
+    .date-btn:hover { background: var(--bg-secondary); }
+
+    .date-btn.active {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
+    }
+
+    .date-day {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      opacity: 0.8;
+    }
+
+    .date-num {
+      font-size: 18px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .date-count { font-size: 10px; opacity: 0.5; }
+    .date-btn.active .date-count { opacity: 0.8; }
+
+    .date-strip-footer {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .weekend-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+
+    .weekend-btn:hover { opacity: 0.9; }
+
+    /* ── Filter Row ── */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+
+    .filter-btn:hover { background: var(--bg-hover); }
+
+    /* ── Events Section ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: clamp(20px, 4vw, 28px);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .view-all-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary);
+      background: none;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    .view-all-btn:hover { opacity: 0.75; }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Event Card ── */
+    .event-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px -4px rgba(24,28,39,0.08);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .event-card:hover { box-shadow: var(--shadow-lg); }
+
+    .event-img-wrap {
+      position: relative;
+      aspect-ratio: 3/2;
+      overflow: hidden;
+    }
+
+    .event-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .event-card:hover .event-img { transform: scale(1.05); }
+
+    .event-tag-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(4px);
+    }
+
+    .event-body { padding: 16px; }
+
+    .event-location {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .event-title {
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--font-heading);
+      color: var(--text-primary);
+      line-height: 1.35;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .event-time { font-size: 13px; color: var(--text-secondary); }
+
+    .event-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .event-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+      background: none;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    .event-link-btn:hover { opacity: 0.75; }
+
+    .event-save-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      margin-left: auto;
+      transition: color 0.15s;
+    }
+
+    .event-save-btn:hover { color: var(--text-primary); }
+
+    /* ── Features Grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      padding: 24px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-icon { font-size: 24px; margin-bottom: 10px; }
+
+    .feature-title {
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font-heading);
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .feature-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── CTA ── */
+    .cta-section { text-align: center; padding: 24px 0 8px; }
+
+    .cta-lead {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .cta-btn {
+      padding: 14px 40px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: var(--gradient);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s;
+    }
+
+    .cta-btn:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+      margin-top: 32px;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .footer-name {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .footer-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .header-nav .nav-btn { display: none; }
+      .search-wrap { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <span class="logo-text">Nearby</span>
+      </a>
+
+      <div class="search-wrap">
+        <span class="search-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </span>
+        <input class="search-input" type="text" placeholder="Search events, locations...">
+      </div>
+
+      <nav class="header-nav">
+        <button class="nav-btn">Browse</button>
+        <button class="nav-btn">About</button>
+        <a href="app/" class="nav-cta">Open App</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Tag Bar -->
+  <div class="tag-bar">
+    <div class="tag-bar-inner">
+      <span class="tag-label">Filter:</span>
+      <button class="tag-scroll-btn" id="scroll-left">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="tag-list" id="tag-list">
+        <!-- tags injected by JS -->
+      </div>
+      <button class="tag-scroll-btn" id="scroll-right">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <img class="hero-img" src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&h=400&fit=crop" alt="Local events">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div>
+        <p class="hero-eyebrow">Explore the Weekend Guide</p>
+        <h1 class="hero-title">Events near Broomall, PA</h1>
+        <p class="hero-sub">Add once, never miss anything local again</p>
+      </div>
+      <div class="hero-arrow">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+
+    <!-- Events Near Me -->
+    <a href="app/" style="display:block; max-width:480px; margin:0 auto; width:100%;">
+      <button class="events-near-me" style="width:100%;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Events Near Me
+      </button>
+    </a>
+
+    <!-- Date Strip -->
+    <div class="date-strip">
+      <p class="date-strip-label">What's happening near you?</p>
+      <div class="date-grid" id="date-grid">
+        <!-- injected by JS -->
+      </div>
+      <div class="date-strip-footer">
+        <button class="weekend-btn" id="weekend-btn">This Weekend</button>
+      </div>
+    </div>
+
+    <!-- Filter Row -->
+    <div class="filter-row">
+      <button class="filter-btn">My Neighborhoods</button>
+      <button class="filter-btn">Saved Events</button>
+      <button class="filter-btn">This Week</button>
+    </div>
+
+    <!-- Events Section -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title" id="events-heading">3 Events · Upcoming</h2>
+        <button class="view-all-btn">
+          View All
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="events-grid" id="events-grid">
+        <!-- injected by JS -->
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section>
+      <h2 style="font-size:24px; font-family:var(--font-heading); font-weight:700; text-align:center; margin-bottom:24px;">How It Works</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📝</div>
+          <div class="feature-title">Add Manually</div>
+          <div class="feature-text">Quick form for event name, date, time, location, and link. Takes 30 seconds.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <div class="feature-title">Paste &amp; Parse</div>
+          <div class="feature-text">Dump text from a flyer, email, or post. Nearby extracts dates and details automatically.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <div class="feature-title">From Any Link</div>
+          <div class="feature-text">Paste a venue URL and fill in the rest. The link stays with your event.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <div class="feature-title">Two Views</div>
+          <div class="feature-text">List mode for quick scanning, calendar mode to visualize your month at a glance.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <div class="feature-title">Search &amp; Filter</div>
+          <div class="feature-text">Find events by name, location, or category. Past events fade away automatically.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💾</div>
+          <div class="feature-title">Always Saved</div>
+          <div class="feature-text">Your events persist across sessions. Everything is private and local to you.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <p class="cta-lead">Ready to keep track of what's happening near you?</p>
+      <a href="app/"><button class="cta-btn">Get Started →</button></a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <p class="footer-name">Nearby</p>
+      <p class="footer-sub">Your personal events hub · Broomall, PA · Built for exploring what's near you</p>
+    </div>
+  </footer>
+
+  <script>
+    // ── Tag data ────────────────────────────────────────────────────────────
+    const CATEGORIES = [
+      { label: '#music',     value: 'music',     color: '#6c5ce7' },
+      { label: '#arts',      value: 'arts',      color: '#e55a4e' },
+      { label: '#food',      value: 'food',      color: '#f59e0b' },
+      { label: '#outdoors',  value: 'outdoors',  color: '#10b981' },
+      { label: '#sports',    value: 'sports',    color: '#3b82f6' },
+      { label: '#community', value: 'community', color: '#ec4899' },
+      { label: '#markets',   value: 'markets',   color: '#8b5cf6' },
+      { label: '#fitness',   value: 'fitness',   color: '#06b6d4' },
+      { label: '#family',    value: 'family',    color: '#f97316' },
+      { label: '#comedy',    value: 'comedy',    color: '#eab308' },
+      { label: '#theatre',   value: 'theatre',   color: '#d946ef' },
+      { label: '#nightlife', value: 'nightlife', color: '#6366f1' },
+    ];
+
+    // ── Mock events ─────────────────────────────────────────────────────────
+    const EVENTS = [
+      {
+        id: '1',
+        title: 'Jazz Night at the Rustic Cellar',
+        location: 'Media, PA',
+        category: 'music',
+        date: 'Today',
+        time: '7:30 PM',
+        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&h=400&fit=crop',
+      },
+      {
+        id: '2',
+        title: 'Farmers Market — Spring Edition',
+        location: 'Broomall, PA',
+        category: 'markets',
+        date: 'Saturday',
+        time: '9:00 AM',
+        imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=400&fit=crop',
+      },
+      {
+        id: '3',
+        title: 'Wissahickon Trail Morning Hike',
+        location: 'Chestnut Hill, PA',
+        category: 'outdoors',
+        date: 'Sunday',
+        time: '8:00 AM',
+        imageUrl: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&h=400&fit=crop',
+      },
+    ];
+
+    const catColors = Object.fromEntries(CATEGORIES.map(c => [c.value, c.color]));
+
+    // ── State ───────────────────────────────────────────────────────────────
+    let activeTag = null;
+    let activeDateIndex = 0;
+
+    // ── Tag Bar ─────────────────────────────────────────────────────────────
+    function renderTags() {
+      const list = document.getElementById('tag-list');
+      list.innerHTML = CATEGORIES.map(cat => {
+        const isActive = activeTag === cat.value;
+        return `<button
+          class="tag-chip${isActive ? ' active' : ''}"
+          data-tag="${cat.value}"
+          style="${isActive ? `background:${cat.color};` : ''}"
+        >${cat.label}</button>`;
+      }).join('');
+
+      list.querySelectorAll('.tag-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTag = activeTag === btn.dataset.tag ? null : btn.dataset.tag;
+          renderTags();
+          renderEvents();
+        });
+      });
+    }
+
+    document.getElementById('scroll-left').addEventListener('click', () => {
+      document.getElementById('tag-list').scrollBy({ left: -200, behavior: 'smooth' });
+    });
+    document.getElementById('scroll-right').addEventListener('click', () => {
+      document.getElementById('tag-list').scrollBy({ left: 200, behavior: 'smooth' });
+    });
+
+    // ── Date Strip ──────────────────────────────────────────────────────────
+    const DAY_ABBR = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const mockCounts = [4,7,2,9,5,12,8,3,6,4,7,2,5,3];
+
+    function renderDates() {
+      const today = new Date();
+      const grid = document.getElementById('date-grid');
+      grid.innerHTML = Array.from({ length: 14 }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const label = i === 0 ? 'TODAY' : i === 1 ? 'TOM' : DAY_ABBR[d.getDay()];
+        const isActive = activeDateIndex === i;
+        return `<button class="date-btn${isActive ? ' active' : ''}" data-i="${i}">
+          <span class="date-day">${label}</span>
+          <span class="date-num">${d.getDate()}</span>
+          <span class="date-count">${mockCounts[i]}</span>
+        </button>`;
+      }).join('');
+
+      grid.querySelectorAll('.date-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeDateIndex = parseInt(btn.dataset.i);
+          renderDates();
+        });
+      });
+    }
+
+    document.getElementById('weekend-btn').addEventListener('click', () => {
+      const today = new Date();
+      const day = today.getDay();
+      activeDateIndex = 6 - day;
+      renderDates();
+    });
+
+    // ── Events Grid ─────────────────────────────────────────────────────────
+    function renderEvents() {
+      const filtered = activeTag ? EVENTS.filter(e => e.category === activeTag) : EVENTS;
+      document.getElementById('events-heading').textContent =
+        `${filtered.length} Event${filtered.length !== 1 ? 's' : ''} · Upcoming`;
+
+      document.getElementById('events-grid').innerHTML = filtered.length === 0
+        ? `<div style="grid-column:1/-1; text-align:center; padding:64px 24px; background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border);">
+            <p style="color:var(--text-muted)">No events for this category.</p>
+            <button onclick="activeTag=null;renderTags();renderEvents();" style="margin-top:8px;font-size:14px;color:var(--primary);background:none;border:none;cursor:pointer;">Clear filter</button>
+           </div>`
+        : filtered.map(event => {
+          const color = catColors[event.category] || '#6c5ce7';
+          return `<div class="event-card">
+            <div class="event-img-wrap">
+              <img class="event-img" src="${event.imageUrl}" alt="${event.title}" loading="lazy">
+              <span class="event-tag-badge" style="color:${color};">#${event.category}</span>
+            </div>
+            <div class="event-body">
+              <div class="event-location">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                ${event.location}
+              </div>
+              <h3 class="event-title">${event.title}</h3>
+              <p class="event-time">${event.date} · ${event.time}</p>
+              <div class="event-actions">
+                <button class="event-link-btn">
+                  Visit Site
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+                <button class="event-save-btn">+ Save</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+    }
+
+    // ── Init ────────────────────────────────────────────────────────────────
+    renderTags();
+    renderDates();
+    renderEvents();
+  </script>
+</body>
+</html>
