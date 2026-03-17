@@ -1038,8 +1038,22 @@
       } catch (err) {
         console.error('[initSupabase] error loading events:', err);
         app.loading = false;
-        app.networkError = err.message || 'Unable to connect to Supabase. The project may be paused or unreachable.';
+        app.networkError = await diagnoseSupabaseError(err);
         render();
+      }
+    }
+
+    async function diagnoseSupabaseError(originalErr) {
+      // Try a no-cors probe to distinguish "project unreachable" from "CORS/API error"
+      try {
+        await fetch(SUPABASE_URL + '/rest/v1/', { mode: 'no-cors', cache: 'no-store' });
+        // Server responded (opaque response) — project is running, likely a CORS or key issue
+        console.log('[diagnose] Supabase server reachable via no-cors probe — likely CORS or key misconfiguration');
+        return 'Supabase is reachable but the request was blocked. Check that your anon key is correct and that CORS allows requests from this origin in your Supabase project API settings.';
+      } catch (probeErr) {
+        // No response at all — project is down or paused
+        console.log('[diagnose] Supabase server unreachable — project may be paused');
+        return 'Cannot reach Supabase. Your free-tier project may be paused due to inactivity. Visit supabase.com to reactivate it, then retry.';
       }
     }
 
@@ -1612,6 +1626,7 @@
           ['map init',      boolBadge(!!a.map, true)],
           ['markers',       `<span class="dbg-accent">${(a.markers || []).length}</span>`],
           ['configError',   a.configError ? `<span class="dbg-err">${esc(a.configError.slice(0,60))}…</span>` : `<span class="dbg-ok">none</span>`],
+          ['networkError',  a.networkError ? `<span class="dbg-err">${esc(a.networkError.slice(0,80))}…</span>` : `<span class="dbg-ok">none</span>`],
         ];
         return rows.map(([k, v]) => `<div class="dbg-row"><span class="dbg-key">${k}</span>${v}</div>`).join('');
       }
