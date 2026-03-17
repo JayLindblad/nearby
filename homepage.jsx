@@ -571,7 +571,7 @@ function SiteHeader({ searchQuery, onSearchChange }) {
             cursor: 'pointer',
             marginLeft: '4px',
           }}>
-            Open App
+            Add an Event
           </button>
         </nav>
       </div>
@@ -837,7 +837,7 @@ function HomePage() {
           {/* CTA */}
           <div style={{ textAlign: 'center', padding: '24px 0 8px' }}>
             <p style={{ color: T.textSecondary, fontSize: '16px', marginBottom: '20px' }}>
-              Ready to keep track of what's happening near you?
+              Have an event to share? Add it in seconds.
             </p>
             <button
               style={{
@@ -857,7 +857,7 @@ function HomePage() {
               onMouseLeave={e => { e.currentTarget.style.boxShadow = T.shadowMd; e.currentTarget.style.transform = 'translateY(0)'; }}
               onClick={() => window.location.href = '#nearby-app'}
             >
-              Get Started →
+              Add an Event →
             </button>
           </div>
 
