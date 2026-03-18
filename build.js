@@ -13,24 +13,15 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   process.exit(1);
 }
 
-// Create dist directories
+// Create dist directory
 const distDir = path.join(__dirname, 'dist');
-const appDir = path.join(distDir, 'app');
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir);
-if (!fs.existsSync(appDir)) fs.mkdirSync(appDir);
 
-// Build landing page → dist/index.html (inject Supabase credentials for live data)
-let landingContent = fs.readFileSync(path.join(__dirname, 'landing.html'), 'utf8');
-landingContent = landingContent.replace('{{SUPABASE_URL}}', SUPABASE_URL);
-landingContent = landingContent.replace('{{SUPABASE_KEY}}', SUPABASE_KEY);
-fs.writeFileSync(path.join(distDir, 'index.html'), landingContent, 'utf8');
-console.log('✓ Built landing.html with env vars → dist/index.html');
-
-// Build app → dist/app/index.html (inject Supabase credentials)
+// Build merged app → dist/index.html (inject Supabase credentials)
 let appContent = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 appContent = appContent.replace('{{SUPABASE_URL}}', SUPABASE_URL);
 appContent = appContent.replace('{{SUPABASE_KEY}}', SUPABASE_KEY);
-fs.writeFileSync(path.join(appDir, 'index.html'), appContent, 'utf8');
-console.log('✓ Built index.html with env vars → dist/app/index.html');
+fs.writeFileSync(path.join(distDir, 'index.html'), appContent, 'utf8');
+console.log('✓ Built index.html with env vars → dist/index.html');
 console.log(`  SUPABASE_URL: ${SUPABASE_URL.substring(0, 30)}...`);
 console.log(`  SUPABASE_KEY: ${SUPABASE_KEY.substring(0, 20)}...`);

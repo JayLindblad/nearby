@@ -8,7 +8,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -1004,6 +1004,302 @@
 
     .toast-success { background: #2ecc71; }
     .toast-error   { background: #e74c3c; }
+
+    /* ── Home / Landing View ── */
+    :root {
+      --font-heading: 'Outfit', sans-serif;
+      --gradient: linear-gradient(135deg, #e55a4e 0%, #6c5ce7 100%);
+      --hero-overlay: linear-gradient(135deg, rgba(229,90,78,0.92) 0%, rgba(108,92,231,0.85) 100%);
+      --primary: #e55a4e;
+      --bg-tag: #f0ede8;
+      --radius-pill: 999px;
+      --max-width-landing: 1100px;
+    }
+
+    .home-view { width: 100%; }
+
+    /* Tag Bar */
+    .tag-bar {
+      border-bottom: 1px solid #e5e1db;
+      background: white;
+    }
+    .tag-bar-inner {
+      max-width: var(--max-width-landing);
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tag-label {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+    }
+    .tag-scroll-btn {
+      flex-shrink: 0;
+      padding: 4px;
+      background: none;
+      border: none;
+      color: #9a9a9a;
+      display: flex;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .tag-scroll-btn:hover { color: #1a1a1a; }
+    .tag-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .tag-list::-webkit-scrollbar { display: none; }
+    .tag-chip {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid #e5e1db;
+      background: var(--bg-tag);
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tag-chip:hover { background: #e5e1db; }
+    .tag-chip.active { border: none; color: #fff; }
+
+    /* Hero Banner */
+    .hero-banner {
+      position: relative;
+      overflow: hidden;
+      background: #2d1f4e;
+    }
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--hero-overlay);
+    }
+    .hero-content {
+      position: relative;
+      max-width: var(--max-width-landing);
+      margin: 0 auto;
+      padding: 40px 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hero-eyebrow {
+      font-size: 12px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 8px;
+    }
+    .hero-title {
+      font-size: clamp(28px, 5vw, 40px);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .hero-sub {
+      color: rgba(255,255,255,0.75);
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    /* Home Main Content */
+    .home-main {
+      max-width: var(--max-width-landing);
+      margin: 0 auto;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* Date Strip */
+    .date-strip {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e5e1db;
+      box-shadow: 0 4px 20px -4px rgba(24,28,39,0.10);
+      padding: 20px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .date-strip-label {
+      font-size: 11px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .date-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: "DM Sans", sans-serif;
+    }
+    .date-btn:hover { background: #f0ede8; }
+    .date-btn.active {
+      background: #6c5ce7;
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(108,92,231,0.25);
+    }
+    .date-day { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; opacity: 0.8; }
+    .date-num { font-size: 18px; font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+    .date-count { font-size: 10px; opacity: 0.5; }
+    .date-btn.active .date-count { opacity: 0.8; }
+    .date-strip-footer { margin-top: 16px; display: flex; gap: 8px; }
+    .weekend-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .weekend-btn:hover { opacity: 0.9; }
+
+    /* Home Events Section */
+    .home-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .home-section-title {
+      font-size: clamp(20px, 4vw, 28px);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+    .home-view-all-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .home-view-all-btn:hover { opacity: 0.75; }
+
+    /* How It Works */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: white;
+      padding: 24px 20px;
+      border-radius: 16px;
+      border: 1px solid #e5e1db;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .feature-card .feature-icon { font-size: 24px; margin-bottom: 10px; }
+    .feature-card .feature-title {
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font-heading);
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    .feature-card .feature-text {
+      font-size: 14px;
+      color: #5c5c5c;
+      line-height: 1.6;
+    }
+
+    /* CTA */
+    .cta-section { text-align: center; padding: 24px 0 8px; }
+    .cta-lead { color: #5c5c5c; font-size: 16px; margin-bottom: 20px; }
+    .cta-btn {
+      padding: 14px 40px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: var(--gradient);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 4px 20px -4px rgba(24,28,39,0.10);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cta-btn:hover { box-shadow: 0 8px 32px rgba(24,28,39,0.16); transform: translateY(-2px); }
+
+    /* Home nav CTA button */
+    .nav-cta-btn {
+      padding: 7px 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: var(--gradient);
+      color: #fff;
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-left: 4px;
+    }
+    .nav-cta-btn:hover { opacity: 0.9; }
+
+    /* Logo redesign for home view */
+    .logo-icon-wrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--gradient);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 6px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -1130,7 +1426,7 @@
 
     // App State
     let app = {
-      view: 'list', // 'list', 'calendar', 'map', 'browse', 'about'
+      view: 'home', // 'home', 'list', 'calendar', 'map', 'browse', 'about'
       inputMode: 'manual', // 'manual', 'paste', 'url'
       events: [],
       savedEvents: loadSavedEvents(),
@@ -1142,7 +1438,10 @@
       loading: true,
       userId: null,
       configError: null,
-      networkError: null
+      networkError: null,
+      // Home view state
+      activeCat: null,
+      activeDateIndex: null
     };
 
     // Utility Functions
@@ -1582,16 +1881,210 @@
       return '<div id="map"></div>';
     }
 
+    // ── Home view helpers ─────────────────────────────────────────────────────
+    const HOME_DAY_ABBR = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+    function buildDateCounts(events) {
+      const counts = {};
+      events.forEach(e => {
+        const k = e.datetime ? new Date(e.datetime).toLocaleDateString('en-CA') : null;
+        if (k) counts[k] = (counts[k] || 0) + 1;
+      });
+      return counts;
+    }
+
+    function offsetDateKey(offset) {
+      const d = new Date();
+      d.setDate(d.getDate() + offset);
+      return d.toLocaleDateString('en-CA');
+    }
+
+    function fmtDateShort(isoStr) {
+      if (!isoStr) return 'Date TBD';
+      const d = new Date(isoStr);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+      const dd = new Date(isoStr); dd.setHours(0,0,0,0);
+      if (dd.getTime() === today.getTime()) return 'Today';
+      if (dd.getTime() === tomorrow.getTime()) return 'Tomorrow';
+      return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    }
+
+    function getHomeCategoriesFromEvents() {
+      const seen = new Set(app.events.map(e => e.category).filter(Boolean));
+      return [...seen].sort().map(cat => ({
+        label: `#${cat.toLowerCase()}`,
+        value: cat,
+        color: catColor(cat),
+      }));
+    }
+
+    function getHomeFilteredEvents() {
+      let events = app.events.filter(e => !isEventPast(e.datetime) || !e.datetime);
+      if (app.activeCat) events = events.filter(e => e.category === app.activeCat);
+      if (app.activeDateIndex !== null) {
+        const k = offsetDateKey(app.activeDateIndex);
+        const byDate = events.filter(e => e.datetime && new Date(e.datetime).toLocaleDateString('en-CA') === k);
+        if (byDate.length > 0) return byDate;
+      }
+      return events.slice(0, 12);
+    }
+
+    function renderHomeCategoryTags(categories) {
+      if (!categories.length) return '<span style="color:#9a9a9a;font-size:13px;padding:6px 0;">No categories yet</span>';
+      return categories.map(cat => {
+        const isActive = app.activeCat === cat.value;
+        return `<button class="tag-chip${isActive ? ' active' : ''}" data-tag="${cat.value}"
+          style="${isActive ? `background:${cat.color};border-color:${cat.color};` : ''}"
+          onclick="app.activeCat = app.activeCat === '${cat.value}' ? null : '${cat.value}'; render();"
+        >${cat.label}</button>`;
+      }).join('');
+    }
+
+    function renderHomeDateStrip(dateCounts) {
+      const today = new Date();
+      const buttons = Array.from({ length: 14 }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const label = i === 0 ? 'TODAY' : i === 1 ? 'TOM' : HOME_DAY_ABBR[d.getDay()];
+        const k = d.toLocaleDateString('en-CA');
+        const count = dateCounts[k] || 0;
+        const isActive = app.activeDateIndex === i;
+        return `<button class="date-btn${isActive ? ' active' : ''}"
+          onclick="app.activeDateIndex = app.activeDateIndex === ${i} ? null : ${i}; render();">
+          <span class="date-day">${label}</span>
+          <span class="date-num">${d.getDate()}</span>
+          <span class="date-count">${count > 0 ? count : '–'}</span>
+        </button>`;
+      }).join('');
+      return `
+        <div class="date-strip">
+          <p class="date-strip-label">What's happening near you?</p>
+          <div class="date-grid">${buttons}</div>
+          <div class="date-strip-footer">
+            <button class="weekend-btn" onclick="
+              const day = new Date().getDay();
+              app.activeDateIndex = day === 0 ? 0 : 6 - day;
+              render();">This Weekend</button>
+          </div>
+        </div>`;
+    }
+
+    function renderHomeView() {
+      const categories = getHomeCategoriesFromEvents();
+      const dateCounts = buildDateCounts(app.events);
+      const events = getHomeFilteredEvents();
+
+      const tagsHtml = renderHomeCategoryTags(categories);
+      const dateStripHtml = renderHomeDateStrip(dateCounts);
+
+      let eventsHtml;
+      if (app.loading) {
+        eventsHtml = `<p style="color:#9a9a9a;text-align:center;padding:40px 0;">Loading events…</p>`;
+      } else if (events.length === 0) {
+        eventsHtml = `
+          <div style="text-align:center;padding:48px 24px;background:white;border-radius:16px;border:1px solid #e5e1db;">
+            <p style="color:#9a9a9a;">No events match this filter.</p>
+            <button style="margin-top:8px;font-size:14px;color:var(--primary);background:none;border:none;cursor:pointer;"
+              onclick="app.activeCat=null;app.activeDateIndex=null;render();">Clear filters</button>
+          </div>`;
+      } else {
+        eventsHtml = `<div class="events-container">${events.map(createEventCard).join('')}</div>`;
+      }
+
+      const eventCount = getHomeFilteredEvents().length;
+
+      return `
+        <div class="home-view">
+          <!-- Tag Bar -->
+          <div class="tag-bar">
+            <div class="tag-bar-inner">
+              <span class="tag-label">Filter:</span>
+              <button class="tag-scroll-btn" onclick="document.getElementById('home-tag-list').scrollBy({left:-200,behavior:'smooth'})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <div class="tag-list" id="home-tag-list">${tagsHtml}</div>
+              <button class="tag-scroll-btn" onclick="document.getElementById('home-tag-list').scrollBy({left:200,behavior:'smooth'})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Banner -->
+          <div class="hero-banner">
+            <img class="hero-img" src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&h=400&fit=crop" alt="Local events">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+              <div>
+                <p class="hero-eyebrow">Explore the Weekend Guide</p>
+                <h1 class="hero-title">Events near Broomall, PA</h1>
+                <p class="hero-sub">Add once, never miss anything local again</p>
+              </div>
+              <div style="opacity:0.7;color:#fff;flex-shrink:0;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="home-main">
+            ${dateStripHtml}
+
+            <!-- Events Section -->
+            <section>
+              <div class="home-section-header">
+                <h2 class="home-section-title" id="home-events-heading">${eventCount} Event${eventCount !== 1 ? 's' : ''} · Upcoming</h2>
+                <button class="home-view-all-btn" onclick="app.view='list';render();">
+                  View All
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+              ${eventsHtml}
+            </section>
+
+            <!-- How It Works -->
+            <section>
+              <h2 style="font-size:24px;font-family:var(--font-heading);font-weight:700;text-align:center;margin-bottom:24px;">How It Works</h2>
+              <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">📝</div><div class="feature-title">Add Manually</div><div class="feature-text">Quick form for event name, date, time, location, and link. Takes 30 seconds.</div></div>
+                <div class="feature-card"><div class="feature-icon">📋</div><div class="feature-title">Paste &amp; Parse</div><div class="feature-text">Dump text from a flyer, email, or post. Nearby extracts dates and details automatically.</div></div>
+                <div class="feature-card"><div class="feature-icon">🔗</div><div class="feature-title">From Any Link</div><div class="feature-text">Paste a venue URL and fill in the rest. The link stays with your event.</div></div>
+                <div class="feature-card"><div class="feature-icon">📅</div><div class="feature-title">Calendar &amp; Map</div><div class="feature-text">List mode for quick scanning, calendar to visualize your month, map to see what's nearby.</div></div>
+                <div class="feature-card"><div class="feature-icon">🔍</div><div class="feature-title">Search &amp; Filter</div><div class="feature-text">Find events by name, location, or category. Past events fade away automatically.</div></div>
+                <div class="feature-card"><div class="feature-icon">💾</div><div class="feature-title">Always Saved</div><div class="feature-text">Your events persist across sessions. Everything is private and local to you.</div></div>
+              </div>
+            </section>
+
+            <!-- CTA -->
+            <div class="cta-section">
+              <p class="cta-lead">Have an event to share? Add it in seconds.</p>
+              <button class="cta-btn" onclick="app.view='list';render();window.scrollTo(0,0);">Add an Event →</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
     function renderHeader() {
-      const isSpecialView = app.view === 'browse' || app.view === 'about';
+      const isHomeView = app.view === 'home';
+      const isSpecialView = app.view === 'browse' || app.view === 'about' || isHomeView;
+      const logoHtml = `
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="app.view='home';app.activeCat=null;app.activeDateIndex=null;render();">
+          <span class="logo-icon-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </span>
+          <span class="header-title" style="margin-bottom:0;">Nearby</span>
+        </div>`;
       return `
         <div class="header">
           <div class="header-content">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isSpecialView ? '0' : '1rem'};">
-              <div class="header-title" style="margin-bottom:0;cursor:pointer;" onclick="app.view='list';render();">🗺️ Nearby</div>
+              ${logoHtml}
               <div class="nav-links">
                 <button class="nav-link-btn ${app.view === 'browse' ? 'active' : ''}" onclick="app.view='browse';render();">Browse</button>
                 <button class="nav-link-btn ${app.view === 'about' ? 'active' : ''}" onclick="app.view='about';render();">About</button>
+                <button class="nav-cta-btn" onclick="app.view='list';render();window.scrollTo(0,0);">Add an Event</button>
               </div>
             </div>
             ${!isSpecialView ? `
@@ -1803,6 +2296,7 @@
             <div class="footer-col">
               <h4>Views</h4>
               <ul class="footer-links">
+                <li><button onclick="app.view='home';app.activeCat=null;app.activeDateIndex=null;render();window.scrollTo(0,0);">🏠 Home</button></li>
                 <li><button onclick="app.view='list';render();window.scrollTo(0,0);">📋 List</button></li>
                 <li><button onclick="app.view='calendar';render();window.scrollTo(0,0);">📅 Calendar</button></li>
                 <li><button onclick="app.view='map';render();window.scrollTo(0,0);">🗺️ Map</button></li>
@@ -1850,6 +2344,9 @@
 
       let content = '';
       switch (app.view) {
+        case 'home':
+          content = renderHomeView();
+          break;
         case 'list':
           content = renderListView();
           break;
@@ -1886,8 +2383,15 @@
         _afterRender();
         return;
       }
+      const isHomeView = app.view === 'home';
       const isSpecialView = app.view === 'browse' || app.view === 'about';
-      if (isSpecialView) {
+      if (isHomeView) {
+        appEl.innerHTML = `
+          ${renderHeader()}
+          ${renderContent()}
+          ${renderFooter()}
+        `;
+      } else if (isSpecialView) {
         appEl.innerHTML = `
           ${renderHeader()}
           <div class="content">
