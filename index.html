@@ -299,6 +299,17 @@
       gap: 0.7rem;
     }
 
+    .event-img-wrap {
+      margin: -1rem -1rem 0;
+      border-radius: 10px 10px 0 0;
+      aspect-ratio: 3/2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      overflow: hidden;
+    }
+
     .event-card:hover {
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
       border-color: #6c5ce7;
@@ -885,6 +896,20 @@
         'Theater': '#722ed1',
         'Other': '#5c5c5c'
       },
+      catEmojis: {
+        'Music': '🎵', 'Food': '🍴', 'Art': '🎨', 'Sports': '⚽',
+        'Comedy': '😂', 'Tech': '💻', 'Theater': '🎭', 'Other': '📌',
+      },
+      catGradients: {
+        'Music':   'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
+        'Food':    'linear-gradient(135deg, #ffa502 0%, #ff6b00 100%)',
+        'Art':     'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+        'Sports':  'linear-gradient(135deg, #13c2c2 0%, #006d75 100%)',
+        'Comedy':  'linear-gradient(135deg, #faad14 0%, #d48806 100%)',
+        'Tech':    'linear-gradient(135deg, #1890ff 0%, #0050b3 100%)',
+        'Theater': 'linear-gradient(135deg, #722ed1 0%, #391085 100%)',
+        'Other':   'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
+      },
       maxWidth: 900,
       headerPadding: '1.5rem 1rem',
       contentPadding: '1.5rem 1rem'
@@ -1122,6 +1147,14 @@
       return T.catColors[category] || T.catColors['Other'];
     }
 
+    function catEmoji(category) {
+      return T.catEmojis[category] || '📌';
+    }
+
+    function catGradient(category) {
+      return T.catGradients[category] || T.catGradients['Other'];
+    }
+
     function getFilteredEvents() {
       return app.events.filter(e => {
         const matchesSearch = !app.searchTerm ||
@@ -1166,6 +1199,9 @@
 
       return `
         <div class="${cardClass}">
+          <div class="event-img-wrap" style="background:${catGradient(event.category)};">
+            <span>${catEmoji(event.category)}</span>
+          </div>
           <div class="event-card-header">
             <div class="event-title">${titleHtml}</div>
             <button class="event-delete-btn" onclick="app.events = app.events; deleteEvent('${event.id}')">×</button>
