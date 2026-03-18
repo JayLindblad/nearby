@@ -568,6 +568,10 @@
       cursor: pointer;
       font-size: 1.2rem;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .modal-close:hover {
@@ -1287,6 +1291,51 @@
     }
     .nav-cta-btn:hover { opacity: 0.9; }
 
+    /* Views Dropdown */
+    .nav-dropdown {
+      position: relative;
+    }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: white;
+      border: 1px solid #e5e1db;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      padding: 0.3rem;
+      min-width: 160px;
+      z-index: 200;
+    }
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown.open .nav-dropdown-menu {
+      display: block;
+    }
+    .nav-dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #5c5c5c;
+      border-radius: 6px;
+      text-align: left;
+      font-family: "DM Sans", sans-serif;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .nav-dropdown-item:hover { background: #f0ede8; color: #1a1a1a; }
+    .nav-dropdown-item.active { color: #6c5ce7; background: #f0e8ff; }
+
+    /* Weekend button active state */
+    .weekend-btn.active {
+      background: #5f4cd1;
+    }
+
     /* Logo redesign for home view */
     .logo-icon-wrap {
       width: 32px;
@@ -1441,7 +1490,8 @@
       networkError: null,
       // Home view state
       activeCat: null,
-      activeDateIndex: null
+      activeDateIndex: null,
+      weekendMode: false
     };
 
     // Utility Functions
@@ -1859,22 +1909,21 @@
         app.markers.forEach(m => app.map.removeLayer(m));
         app.markers = [];
 
-        // Add markers for events
+        // Add markers for all events (use default coords if no location)
         filtered.forEach(event => {
-          if (event.location) {
-            const coords = getCoordinates(event.location);
-            const marker = L.circleMarker(coords, {
-              radius: 8,
-              fillColor: catColor(event.category),
-              color: '#fff',
-              weight: 2,
-              opacity: 1,
-              fillOpacity: 0.8
-            }).addTo(app.map);
+          const coords = getCoordinates(event.location || '');
+          const marker = L.circleMarker(coords, {
+            radius: 8,
+            fillColor: catColor(event.category),
+            color: '#fff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+          }).addTo(app.map);
 
-            marker.bindPopup(`<strong>${event.name}</strong><br>${event.location}`);
-            app.markers.push(marker);
-          }
+          const locationText = event.location || 'Broomall, PA (default)';
+          marker.bindPopup(`<strong>${event.name}</strong><br>${locationText}`);
+          app.markers.push(marker);
         });
       }, 100);
 
@@ -1899,6 +1948,16 @@
       return d.toLocaleDateString('en-CA');
     }
 
+    function getWeekendIndices() {
+      // Returns offsets (from today) of the upcoming Fri, Sat, Sun
+      const day = new Date().getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+      if (day === 0) return [0];                   // Sunday: just today
+      if (day === 6) return [0, 1];                // Saturday: Sat + Sun
+      if (day === 5) return [0, 1, 2];             // Friday: Fri + Sat + Sun
+      const daysToFri = 5 - day;
+      return [daysToFri, daysToFri + 1, daysToFri + 2]; // Mon-Thu: next Fri/Sat/Sun
+    }
+
     function fmtDateShort(isoStr) {
       if (!isoStr) return 'Date TBD';
       const d = new Date(isoStr);
@@ -1913,7 +1972,7 @@
     function getHomeCategoriesFromEvents() {
       const seen = new Set(app.events.map(e => e.category).filter(Boolean));
       return [...seen].sort().map(cat => ({
-        label: `#${cat.toLowerCase()}`,
+        label: `${catEmoji(cat)} ${cat}`,
         value: cat,
         color: catColor(cat),
       }));
@@ -1922,6 +1981,10 @@
     function getHomeFilteredEvents() {
       let events = app.events.filter(e => !isEventPast(e.datetime) || !e.datetime);
       if (app.activeCat) events = events.filter(e => e.category === app.activeCat);
+      if (app.weekendMode) {
+        const keys = getWeekendIndices().map(i => offsetDateKey(i));
+        return events.filter(e => e.datetime && keys.includes(new Date(e.datetime).toLocaleDateString('en-CA')));
+      }
       if (app.activeDateIndex !== null) {
         const k = offsetDateKey(app.activeDateIndex);
         const byDate = events.filter(e => e.datetime && new Date(e.datetime).toLocaleDateString('en-CA') === k);
@@ -1943,15 +2006,16 @@
 
     function renderHomeDateStrip(dateCounts) {
       const today = new Date();
+      const weekendIndices = new Set(app.weekendMode ? getWeekendIndices() : []);
       const buttons = Array.from({ length: 14 }, (_, i) => {
         const d = new Date(today);
         d.setDate(today.getDate() + i);
         const label = i === 0 ? 'TODAY' : i === 1 ? 'TOM' : HOME_DAY_ABBR[d.getDay()];
         const k = d.toLocaleDateString('en-CA');
         const count = dateCounts[k] || 0;
-        const isActive = app.activeDateIndex === i;
+        const isActive = (!app.weekendMode && app.activeDateIndex === i) || weekendIndices.has(i);
         return `<button class="date-btn${isActive ? ' active' : ''}"
-          onclick="app.activeDateIndex = app.activeDateIndex === ${i} ? null : ${i}; render();">
+          onclick="app.weekendMode = false; app.activeDateIndex = app.activeDateIndex === ${i} ? null : ${i}; render();">
           <span class="date-day">${label}</span>
           <span class="date-num">${d.getDate()}</span>
           <span class="date-count">${count > 0 ? count : '–'}</span>
@@ -1962,9 +2026,9 @@
           <p class="date-strip-label">What's happening near you?</p>
           <div class="date-grid">${buttons}</div>
           <div class="date-strip-footer">
-            <button class="weekend-btn" onclick="
-              const day = new Date().getDay();
-              app.activeDateIndex = day === 0 ? 0 : 6 - day;
+            <button class="weekend-btn${app.weekendMode ? ' active' : ''}" onclick="
+              app.weekendMode = !app.weekendMode;
+              app.activeDateIndex = null;
               render();">This Weekend</button>
           </div>
         </div>`;
@@ -2082,7 +2146,16 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isSpecialView ? '0' : '1rem'};">
               ${logoHtml}
               <div class="nav-links">
-                <button class="nav-link-btn ${app.view === 'browse' ? 'active' : ''}" onclick="app.view='browse';render();">Browse</button>
+                <div class="nav-dropdown">
+                  <button class="nav-link-btn" onclick="this.closest('.nav-dropdown').classList.toggle('open')">Views ▾</button>
+                  <div class="nav-dropdown-menu">
+                    <button class="nav-dropdown-item ${app.view === 'home' ? 'active' : ''}" onclick="app.view='home';app.activeCat=null;app.activeDateIndex=null;render();window.scrollTo(0,0);">🏠 Home</button>
+                    <button class="nav-dropdown-item ${app.view === 'list' ? 'active' : ''}" onclick="app.view='list';render();window.scrollTo(0,0);">📋 List</button>
+                    <button class="nav-dropdown-item ${app.view === 'calendar' ? 'active' : ''}" onclick="app.view='calendar';render();window.scrollTo(0,0);">📅 Calendar</button>
+                    <button class="nav-dropdown-item ${app.view === 'map' ? 'active' : ''}" onclick="app.view='map';render();window.scrollTo(0,0);">🗺️ Map</button>
+                    <button class="nav-dropdown-item ${app.view === 'browse' ? 'active' : ''}" onclick="app.view='browse';render();window.scrollTo(0,0);">🔍 Browse</button>
+                  </div>
+                </div>
                 <button class="nav-link-btn ${app.view === 'about' ? 'active' : ''}" onclick="app.view='about';render();">About</button>
                 <button class="nav-cta-btn" onclick="app.view='list';render();window.scrollTo(0,0);">Add an Event</button>
               </div>
