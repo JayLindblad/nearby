@@ -1412,28 +1412,43 @@
       labelPast: '#9a9a9a',
       labelUndated: '#ff9f43',
       catColors: {
-        'Music': '#ff6b6b',
-        'Food': '#ffa502',
-        'Art': '#ff6b9d',
-        'Sports': '#13c2c2',
-        'Comedy': '#faad14',
-        'Tech': '#1890ff',
-        'Theater': '#722ed1',
-        'Other': '#5c5c5c'
+        'music':     '#6c5ce7',
+        'arts':      '#e55a4e',
+        'food':      '#f59e0b',
+        'outdoors':  '#10b981',
+        'sports':    '#3b82f6',
+        'markets':   '#8b5cf6',
+        'fitness':   '#06b6d4',
+        'kids':      '#f97316',
+        'comedy':    '#eab308',
+        'nightlife': '#6366f1',
+        'other':     '#5c5c5c',
       },
       catEmojis: {
-        'Music': '🎵', 'Food': '🍴', 'Art': '🎨', 'Sports': '⚽',
-        'Comedy': '😂', 'Tech': '💻', 'Theater': '🎭', 'Other': '📌',
+        'music':     '🎵',
+        'arts':      '🎨',
+        'food':      '🍽️',
+        'outdoors':  '🌲',
+        'sports':    '⚽',
+        'markets':   '🛒',
+        'fitness':   '💪',
+        'kids':      '👶',
+        'comedy':    '😂',
+        'nightlife': '🌙',
+        'other':     '📌',
       },
       catGradients: {
-        'Music':   'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
-        'Food':    'linear-gradient(135deg, #ffa502 0%, #ff6b00 100%)',
-        'Art':     'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-        'Sports':  'linear-gradient(135deg, #13c2c2 0%, #006d75 100%)',
-        'Comedy':  'linear-gradient(135deg, #faad14 0%, #d48806 100%)',
-        'Tech':    'linear-gradient(135deg, #1890ff 0%, #0050b3 100%)',
-        'Theater': 'linear-gradient(135deg, #722ed1 0%, #391085 100%)',
-        'Other':   'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
+        'music':     'linear-gradient(135deg, #6c5ce7 0%, #4834d4 100%)',
+        'arts':      'linear-gradient(135deg, #e55a4e 0%, #c0392b 100%)',
+        'food':      'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        'outdoors':  'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        'sports':    'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+        'markets':   'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+        'fitness':   'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
+        'kids':      'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+        'comedy':    'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)',
+        'nightlife': 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+        'other':     'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       },
       maxWidth: 900,
       headerPadding: '1.5rem 1rem',
@@ -1682,7 +1697,7 @@
 
     // UI Functions
     function catColor(category) {
-      return T.catColors[category] || T.catColors['Other'];
+      return T.catColors[category] || T.catColors['other'];
     }
 
     function catEmoji(category) {
@@ -1690,7 +1705,7 @@
     }
 
     function catGradient(category) {
-      return T.catGradients[category] || T.catGradients['Other'];
+      return T.catGradients[category] || T.catGradients['other'];
     }
 
     function toggleSaveEvent(id) {
