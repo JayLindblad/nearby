@@ -449,7 +449,6 @@
     }
 
     .calendar-day {
-      aspect-ratio: 1;
       border: 1px solid #e5e1db;
       border-radius: 8px;
       padding: 0.5rem;
@@ -458,7 +457,8 @@
       display: flex;
       flex-direction: column;
       font-size: 0.85rem;
-      min-height: 80px;
+      min-height: 90px;
+      width: 100%;
     }
 
     .calendar-day:hover {
@@ -797,6 +797,179 @@
       }
     }
 
+    /* Bookmark / Save Button */
+    .event-save-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0;
+      border-radius: 6px;
+      transition: all 0.2s;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #9a9a9a;
+    }
+    .event-save-btn:hover { color: #ff6b9d; background: #fff0f6; }
+    .event-save-btn.saved { color: #ff6b9d; }
+
+    /* Nav Links in header */
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+    .nav-link-btn {
+      padding: 0.4rem 0.85rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #5c5c5c;
+      border-radius: 6px;
+      transition: all 0.2s;
+      font-family: "DM Sans", sans-serif;
+    }
+    .nav-link-btn:hover { background: #f0ede8; color: #1a1a1a; }
+    .nav-link-btn.active { color: #6c5ce7; background: #f0e8ff; }
+
+    /* Event Detail Modal */
+    .event-modal-banner {
+      margin: -1.5rem -1.5rem 1.5rem;
+      border-radius: 10px 10px 0 0;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      min-height: 120px;
+    }
+    .modal-content { min-width: 320px; max-width: 480px; width: 100%; }
+    .event-modal-details { display: flex; flex-direction: column; gap: 0.75rem; }
+    .event-modal-detail-item { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.95rem; color: #5c5c5c; }
+    .event-modal-detail-item span:first-child { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .event-modal-detail-item a { color: #6c5ce7; word-break: break-all; }
+    .event-modal-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+    .btn-saved { background: #fff0f6; color: #ff6b9d; border: 1px solid #ff6b9d; }
+    .btn-saved:hover { background: #ff6b9d; color: white; }
+
+    /* Browse Page */
+    .browse-header { margin-bottom: 1.5rem; }
+    .browse-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .browse-header p { color: #5c5c5c; }
+    .browse-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .browse-stat-card {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .browse-stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .browse-stat-emoji { font-size: 1.75rem; margin-bottom: 0.4rem; }
+    .browse-stat-name { font-size: 0.78rem; font-weight: 500; color: #5c5c5c; margin-bottom: 0.2rem; }
+    .browse-stat-count { font-size: 1.25rem; font-weight: 700; }
+
+    /* About Page */
+    .about-container { max-width: 680px; margin: 0 auto; }
+    .about-hero { text-align: center; padding: 2rem 1rem 1.5rem; }
+    .about-hero-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+    .about-hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c5ce7, #ff6b9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: "Space Mono", monospace;
+      margin-bottom: 0.75rem;
+    }
+    .about-hero p { color: #5c5c5c; font-size: 1.05rem; max-width: 500px; margin: 0 auto; }
+    .about-section {
+      background: white;
+      border: 1px solid #e5e1db;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .about-section h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 1rem; color: #1a1a1a; }
+    .feature-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .feature-item { display: flex; gap: 0.75rem; align-items: flex-start; }
+    .feature-icon { font-size: 1.25rem; flex-shrink: 0; }
+    .feature-text { font-size: 0.95rem; color: #5c5c5c; line-height: 1.5; }
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tech-tag {
+      padding: 0.3rem 0.75rem;
+      background: #f0ede8;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #5c5c5c;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: white;
+      border-top: 1px solid #e5e1db;
+      padding: 3rem 1rem 1.5rem;
+      margin-top: 3rem;
+    }
+    .footer-grid {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-logo {
+      font-family: "Space Mono", monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c5ce7, #ff6b9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .footer-tagline { font-size: 0.875rem; color: #5c5c5c; margin-bottom: 0.75rem; line-height: 1.6; }
+    .footer-col h4 { font-size: 0.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
+    .footer-links li a, .footer-links li button {
+      font-size: 0.875rem; color: #5c5c5c; text-decoration: none;
+      background: none; border: none; padding: 0; cursor: pointer;
+      font-family: "DM Sans", sans-serif; font-weight: 400; transition: color 0.2s; text-align: left;
+    }
+    .footer-links li a:hover, .footer-links li button:hover { color: #6c5ce7; }
+    .footer-bottom {
+      max-width: 900px; margin: 0 auto;
+      padding-top: 1.5rem; border-top: 1px solid #e5e1db;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .footer-copyright, .footer-made-with { font-size: 0.8rem; color: #9a9a9a; }
+
+    /* Event card clickable */
+    .event-card { cursor: pointer; }
+
+    /* Calendar grid fills container */
+    .calendar-container { width: 100%; }
+    .calendar-grid { width: 100%; }
+
     /* Toast notifications */
     #toast-container {
       position: fixed;
@@ -836,6 +1009,13 @@
 <body>
   <div id="app"></div>
   <div id="toast-container"></div>
+
+  <!-- Event Detail Modal -->
+  <div id="event-detail-modal" class="modal" onclick="if(event.target===this)closeEventModal()">
+    <div class="modal-content">
+      <div id="event-detail-content"></div>
+    </div>
+  </div>
 
   <!-- Debug Panel -->
   <button id="debug-badge" onclick="window.__debug && window.__debug.toggle()">DEBUG</button>
@@ -940,11 +1120,20 @@
     window.SUPABASE_CONFIGURED = SUPABASE_CONFIGURED;
     window.supabaseClient = supabaseClient;
 
+    // Saved events (bookmarks) stored in localStorage
+    function loadSavedEvents() {
+      try { return JSON.parse(localStorage.getItem('nearby_saved_events') || '[]'); } catch { return []; }
+    }
+    function persistSavedEvents() {
+      localStorage.setItem('nearby_saved_events', JSON.stringify(app.savedEvents));
+    }
+
     // App State
     let app = {
-      view: 'list', // 'list', 'calendar', 'map'
+      view: 'list', // 'list', 'calendar', 'map', 'browse', 'about'
       inputMode: 'manual', // 'manual', 'paste', 'url'
       events: [],
+      savedEvents: loadSavedEvents(),
       searchTerm: '',
       filterCategory: '',
       currentMonth: new Date(),
@@ -1155,6 +1344,56 @@
       return T.catGradients[category] || T.catGradients['Other'];
     }
 
+    function toggleSaveEvent(id) {
+      if (app.savedEvents.includes(id)) {
+        app.savedEvents = app.savedEvents.filter(sid => sid !== id);
+        showToast('Bookmark removed');
+      } else {
+        app.savedEvents = [...app.savedEvents, id];
+        showToast('Event bookmarked ♥');
+      }
+      persistSavedEvents();
+      render();
+    }
+
+    function openEventModal(id) {
+      const event = app.events.find(e => e.id === id);
+      if (!event) return;
+      const saved = app.savedEvents.includes(id);
+      const dateStr = event.datetime ? formatDate(event.datetime) : null;
+      const timeStr = event.datetime ? formatTime(event.datetime) : null;
+      document.getElementById('event-detail-content').innerHTML = `
+        <div class="event-modal-banner" style="background:${catGradient(event.category)}">
+          <span>${catEmoji(event.category)}</span>
+        </div>
+        <div class="modal-header">
+          <div>
+            <div class="modal-title">${event.name}</div>
+            <div class="event-category" style="background-color:${catColor(event.category)}15;color:${catColor(event.category)};margin-top:0.5rem;">${event.category}</div>
+          </div>
+          <button class="modal-close" onclick="closeEventModal()">×</button>
+        </div>
+        <div class="event-modal-details">
+          ${dateStr ? `<div class="event-modal-detail-item"><span>📅</span><div><strong>${dateStr}</strong>${timeStr ? ` at ${timeStr}` : ''}</div></div>` : ''}
+          ${event.location ? `<div class="event-modal-detail-item"><span>📍</span><div>${event.location}</div></div>` : ''}
+          ${event.link ? `<div class="event-modal-detail-item"><span>🔗</span><div><a href="${event.link}" target="_blank">${event.link}</a></div></div>` : ''}
+        </div>
+        <div class="event-modal-actions">
+          ${event.link ? `<a href="${event.link}" target="_blank" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;padding:0.7rem 1.5rem;border-radius:8px;font-weight:600;font-size:0.95rem;">View Event ↗</a>` : ''}
+          <button id="modal-save-btn" class="btn-secondary ${saved ? 'btn-saved' : ''}" onclick="toggleSaveEvent('${id}'); document.getElementById('modal-save-btn').textContent = app.savedEvents.includes('${id}') ? '♥ Saved' : '♡ Save'; document.getElementById('modal-save-btn').classList.toggle('btn-saved');">${saved ? '♥ Saved' : '♡ Save'}</button>
+          <button class="btn-secondary" style="color:#ff6b6b;margin-left:auto;" onclick="if(confirm('Delete this event?')){closeEventModal();deleteEvent('${id}')}">Delete</button>
+        </div>
+      `;
+      document.getElementById('event-detail-modal').classList.add('open');
+    }
+
+    function closeEventModal() {
+      document.getElementById('event-detail-modal').classList.remove('open');
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEventModal(); });
+
     function getFilteredEvents() {
       return app.events.filter(e => {
         const matchesSearch = !app.searchTerm ||
@@ -1188,23 +1427,27 @@
     function createEventCard(event) {
       const isPast = isEventPast(event.datetime);
       const cardClass = isPast ? 'event-card past' : 'event-card';
+      const saved = app.savedEvents.includes(event.id);
 
       let titleHtml = event.name;
       if (event.link) {
-        titleHtml = `<a href="${event.link}" target="_blank">${event.name} ↗</a>`;
+        titleHtml = `<a href="${event.link}" target="_blank" onclick="event.stopPropagation()">${event.name} ↗</a>`;
       }
 
       const dateStr = event.datetime ? formatDate(event.datetime) : 'No date';
       const timeStr = event.datetime ? formatTime(event.datetime) : '';
 
       return `
-        <div class="${cardClass}">
+        <div class="${cardClass}" onclick="openEventModal('${event.id}')">
           <div class="event-img-wrap" style="background:${catGradient(event.category)};">
             <span>${catEmoji(event.category)}</span>
           </div>
           <div class="event-card-header">
             <div class="event-title">${titleHtml}</div>
-            <button class="event-delete-btn" onclick="app.events = app.events; deleteEvent('${event.id}')">×</button>
+            <div style="display:flex;gap:0.2rem;flex-shrink:0;">
+              <button class="event-save-btn ${saved ? 'saved' : ''}" title="${saved ? 'Remove bookmark' : 'Save event'}" onclick="event.stopPropagation();toggleSaveEvent('${event.id}')">${saved ? '♥' : '♡'}</button>
+              <button class="event-delete-btn" onclick="event.stopPropagation();deleteEvent('${event.id}')">×</button>
+            </div>
           </div>
           <div class="event-meta">
             ${event.datetime ? `<div class="event-meta-item">📅 ${dateStr} ${timeStr}</div>` : ''}
@@ -1340,10 +1583,18 @@
     }
 
     function renderHeader() {
+      const isSpecialView = app.view === 'browse' || app.view === 'about';
       return `
         <div class="header">
           <div class="header-content">
-            <div class="header-title">🗺️ Nearby</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isSpecialView ? '0' : '1rem'};">
+              <div class="header-title" style="margin-bottom:0;cursor:pointer;" onclick="app.view='list';render();">🗺️ Nearby</div>
+              <div class="nav-links">
+                <button class="nav-link-btn ${app.view === 'browse' ? 'active' : ''}" onclick="app.view='browse';render();">Browse</button>
+                <button class="nav-link-btn ${app.view === 'about' ? 'active' : ''}" onclick="app.view='about';render();">About</button>
+              </div>
+            </div>
+            ${!isSpecialView ? `
             <div class="header-controls">
               <div class="view-toggle">
                 <button class="view-btn ${app.view === 'list' ? 'active' : ''}" onclick="app.view = 'list'; render();">List</button>
@@ -1351,13 +1602,13 @@
                 <button class="view-btn ${app.view === 'map' ? 'active' : ''}" onclick="app.view = 'map'; render();">Map</button>
               </div>
               <div class="search-filter">
-                <input type="text" placeholder="Search events..." onchange="app.searchTerm = this.value; render();" oninput="app.searchTerm = this.value; render();">
+                <input type="text" placeholder="Search events..." value="${app.searchTerm || ''}" onchange="app.searchTerm = this.value; render();" oninput="app.searchTerm = this.value; render();">
                 <select onchange="app.filterCategory = this.value; render();">
                   <option value="">All Categories</option>
-                  ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                  ${CATEGORIES.map(cat => `<option value="${cat}" ${app.filterCategory === cat ? 'selected' : ''}>${cat}</option>`).join('')}
                 </select>
               </div>
-            </div>
+            </div>` : ''}
           </div>
         </div>
       `;
@@ -1452,6 +1703,136 @@
       }
     }
 
+    function renderBrowseView() {
+      const counts = {};
+      CATEGORIES.forEach(cat => counts[cat] = app.events.filter(e => e.category === cat).length);
+      const activeFilter = app.filterCategory;
+      const filtered = activeFilter ? app.events.filter(e => e.category === activeFilter) : app.events;
+      const sorted = [...filtered].sort((a, b) => {
+        if (!a.datetime && !b.datetime) return 0;
+        if (!a.datetime) return 1;
+        if (!b.datetime) return -1;
+        return new Date(a.datetime) - new Date(b.datetime);
+      });
+      const activeCats = CATEGORIES.filter(c => counts[c] > 0);
+      return `
+        <div class="browse-header">
+          <h2>Browse Events</h2>
+          <p>Explore ${app.events.length} event${app.events.length !== 1 ? 's' : ''} across ${activeCats.length} categor${activeCats.length !== 1 ? 'ies' : 'y'}</p>
+        </div>
+        <div class="browse-stats">
+          <div class="browse-stat-card" style="border-color:${!activeFilter ? '#6c5ce7' : 'transparent'}" onclick="app.filterCategory='';render();">
+            <div class="browse-stat-emoji">✨</div>
+            <div class="browse-stat-name">All Events</div>
+            <div class="browse-stat-count" style="color:#6c5ce7">${app.events.length}</div>
+          </div>
+          ${CATEGORIES.map(cat => `
+            <div class="browse-stat-card" style="border-color:${activeFilter === cat ? catColor(cat) : 'transparent'}" onclick="app.filterCategory='${cat}';render();">
+              <div class="browse-stat-emoji">${catEmoji(cat)}</div>
+              <div class="browse-stat-name">${cat}</div>
+              <div class="browse-stat-count" style="color:${catColor(cat)}">${counts[cat]}</div>
+            </div>
+          `).join('')}
+        </div>
+        ${sorted.length > 0
+          ? `<div class="events-container">${sorted.map(createEventCard).join('')}</div>`
+          : `<div class="empty-state"><div class="empty-state-icon">${activeFilter ? catEmoji(activeFilter) : '📭'}</div><p>No events${activeFilter ? ` in ${activeFilter}` : ''} yet</p></div>`}
+      `;
+    }
+
+    function renderAboutView() {
+      return `
+        <div class="about-container">
+          <div class="about-hero">
+            <div class="about-hero-emoji">🗺️</div>
+            <h1>Nearby</h1>
+            <p>Your personal hub for tracking local events. Add, organize, and discover what's happening near you.</p>
+          </div>
+          <div class="about-section">
+            <h3>What is Nearby?</h3>
+            <p style="color:#5c5c5c;line-height:1.7;">Nearby is a personal events tracker built for people who want a simple, beautiful way to keep track of local happenings — concerts, food festivals, art shows, sports games, and more. No ads, no algorithms, just your events.</p>
+          </div>
+          <div class="about-section">
+            <h3>Features</h3>
+            <div class="feature-list">
+              <div class="feature-item"><span class="feature-icon">📋</span><div class="feature-text"><strong>List View</strong> — Browse upcoming and past events in a clean card layout</div></div>
+              <div class="feature-item"><span class="feature-icon">📅</span><div class="feature-text"><strong>Calendar View</strong> — See events on a monthly calendar at a glance</div></div>
+              <div class="feature-item"><span class="feature-icon">🗺️</span><div class="feature-text"><strong>Map View</strong> — Explore events by location on an interactive map</div></div>
+              <div class="feature-item"><span class="feature-icon">🔍</span><div class="feature-text"><strong>Browse</strong> — Discover events by category with counts and quick filtering</div></div>
+              <div class="feature-item"><span class="feature-icon">♥</span><div class="feature-text"><strong>Save Events</strong> — Bookmark your favorites — saved locally in your browser, no account needed</div></div>
+              <div class="feature-item"><span class="feature-icon">🤖</span><div class="feature-text"><strong>Smart Paste</strong> — Paste flyers, emails, or social posts and we'll extract the details automatically</div></div>
+            </div>
+          </div>
+          <div class="about-section">
+            <h3>How to Add Events</h3>
+            <div class="feature-list">
+              <div class="feature-item"><span class="feature-icon">✏️</span><div class="feature-text"><strong>Manual</strong> — Fill in the event name, date, time, location, and category directly in the form</div></div>
+              <div class="feature-item"><span class="feature-icon">📋</span><div class="feature-text"><strong>Paste Text</strong> — Copy and paste from a flyer or social post and we'll parse it for you</div></div>
+              <div class="feature-item"><span class="feature-icon">🔗</span><div class="feature-text"><strong>From URL</strong> — Enter a link to the event page and add the details manually</div></div>
+            </div>
+          </div>
+          <div class="about-section">
+            <h3>Built With</h3>
+            <div class="tech-tags">
+              <span class="tech-tag">Vanilla JavaScript</span>
+              <span class="tech-tag">HTML5 / CSS3</span>
+              <span class="tech-tag">Supabase</span>
+              <span class="tech-tag">Leaflet.js</span>
+              <span class="tech-tag">OpenStreetMap</span>
+              <span class="tech-tag">DM Sans</span>
+              <span class="tech-tag">Space Mono</span>
+            </div>
+          </div>
+          <div class="about-section" style="text-align:center;color:#9a9a9a;">
+            <p style="font-size:0.875rem;">Made with ♥ for exploring what's near you · Broomall, PA</p>
+            <p style="font-size:0.8rem;margin-top:0.25rem;">&copy; ${new Date().getFullYear()} Nearby</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFooter() {
+      return `
+        <footer class="site-footer">
+          <div class="footer-grid">
+            <div>
+              <div class="footer-logo">🗺️ Nearby</div>
+              <p class="footer-tagline">Your personal hub for local events. Track concerts, food festivals, art shows, sports games, and more — all in one beautiful place.</p>
+              <p style="font-size:0.8rem;color:#9a9a9a;">Broomall, PA &amp; beyond</p>
+            </div>
+            <div class="footer-col">
+              <h4>Views</h4>
+              <ul class="footer-links">
+                <li><button onclick="app.view='list';render();window.scrollTo(0,0);">📋 List</button></li>
+                <li><button onclick="app.view='calendar';render();window.scrollTo(0,0);">📅 Calendar</button></li>
+                <li><button onclick="app.view='map';render();window.scrollTo(0,0);">🗺️ Map</button></li>
+                <li><button onclick="app.view='browse';render();window.scrollTo(0,0);">🔍 Browse</button></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Categories</h4>
+              <ul class="footer-links">
+                ${CATEGORIES.map(cat => `<li><button onclick="app.filterCategory='${cat}';app.view='browse';render();window.scrollTo(0,0);">${catEmoji(cat)} ${cat}</button></li>`).join('')}
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Info</h4>
+              <ul class="footer-links">
+                <li><button onclick="app.view='about';render();window.scrollTo(0,0);">About Nearby</button></li>
+                <li><a href="https://supabase.com" target="_blank">Powered by Supabase</a></li>
+                <li><a href="https://leafletjs.com" target="_blank">Maps by Leaflet</a></li>
+                <li><a href="https://www.openstreetmap.org" target="_blank">© OpenStreetMap</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <div class="footer-copyright">&copy; ${new Date().getFullYear()} Nearby. Built for exploring what's near you.</div>
+            <div class="footer-made-with">Made with ♥ in Broomall, PA</div>
+          </div>
+        </footer>
+      `;
+    }
+
     function renderContent() {
       if (app.loading) {
         return '<div class="loading"><div class="spinner"></div></div>';
@@ -1478,6 +1859,12 @@
         case 'map':
           content = renderMapView();
           break;
+        case 'browse':
+          content = renderBrowseView();
+          break;
+        case 'about':
+          content = renderAboutView();
+          break;
       }
       return content;
     }
@@ -1494,24 +1881,35 @@
               <p style="margin: 0.75rem 0 0;">${app.configError}</p>
             </div>
           </div>
+          ${renderFooter()}
         `;
         _afterRender();
         return;
       }
-      appEl.innerHTML = `
-        ${renderHeader()}
-        <div class="content">
-          <div class="mode-tabs">
-            <button class="mode-tab ${app.inputMode === 'manual' ? 'active' : ''}" onclick="app.inputMode = 'manual'; render();">Manual</button>
-            <button class="mode-tab ${app.inputMode === 'paste' ? 'active' : ''}" onclick="app.inputMode = 'paste'; render();">Paste Text</button>
-            <button class="mode-tab ${app.inputMode === 'url' ? 'active' : ''}" onclick="app.inputMode = 'url'; render();">From URL</button>
-          </div>
-          ${renderFormMode()}
+      const isSpecialView = app.view === 'browse' || app.view === 'about';
+      if (isSpecialView) {
+        appEl.innerHTML = `
+          ${renderHeader()}
           <div class="content">
             ${renderContent()}
           </div>
-        </div>
-      `;
+          ${renderFooter()}
+        `;
+      } else {
+        appEl.innerHTML = `
+          ${renderHeader()}
+          <div class="content">
+            <div class="mode-tabs">
+              <button class="mode-tab ${app.inputMode === 'manual' ? 'active' : ''}" onclick="app.inputMode = 'manual'; render();">Manual</button>
+              <button class="mode-tab ${app.inputMode === 'paste' ? 'active' : ''}" onclick="app.inputMode = 'paste'; render();">Paste Text</button>
+              <button class="mode-tab ${app.inputMode === 'url' ? 'active' : ''}" onclick="app.inputMode = 'url'; render();">From URL</button>
+            </div>
+            ${renderFormMode()}
+            ${renderContent()}
+          </div>
+          ${renderFooter()}
+        `;
+      }
       _afterRender();
     }
 
